@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DB Migration Agent - AI-Powered Database Migration</title>
+  <meta name="description" content="End-to-end AI-powered database migration agent. Migrate between PostgreSQL, MySQL, and SQL Server across AWS, Azure, and GCP with intelligent multi-agent orchestration." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0a0e1a;--bg-card:#111827;--bg-card-hover:#1a2332;--border:#1e293b;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;--cyan:#06b6d4;--cyan-glow:rgba(6,182,212,.15);--purple:#a855f7;--purple-glow:rgba(168,85,247,.15);--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--gradient:linear-gradient(135deg,#06b6d4,#a855f7)}
+    html{scroll-behavior:smooth}
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+    code,.mono{font-family:'JetBrains Mono',monospace}
+    a{color:var(--cyan);text-decoration:none;transition:opacity .2s}a:hover{opacity:.85}
+    .container{max-width:1200px;margin:0 auto;padding:0 24px}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,14,26,.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+    nav .container{display:flex;align-items:center;justify-content:space-between;height:64px}
+    .nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.1rem;color:var(--text)}
+    .nav-logo svg{width:28px;height:28px}
+    .nav-links{display:flex;gap:32px}
+    .nav-links a{color:var(--text-muted);font-size:.9rem;font-weight:500;transition:color .2s}
+    .nav-links a:hover{color:var(--text);opacity:1}
+    .nav-cta{background:var(--gradient);color:#fff;font-weight:600;padding:8px 20px;border-radius:8px;font-size:.9rem;border:none;cursor:pointer;transition:transform .15s}
+    .nav-cta:hover{transform:translateY(-1px);opacity:1}
+    .hero{padding:160px 0 100px;text-align:center;position:relative}
+    .hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,rgba(6,182,212,.08) 0%,transparent 70%);pointer-events:none}
+    .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--cyan-glow);border:1px solid rgba(6,182,212,.3);padding:6px 16px;border-radius:100px;font-size:.82rem;color:var(--cyan);font-weight:500;margin-bottom:28px}
+    .hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:pulse 2s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .hero h1{font-size:clamp(2.5rem,5.5vw,4.2rem);font-weight:900;line-height:1.1;margin-bottom:24px;background:linear-gradient(135deg,#e2e8f0 30%,#06b6d4 70%,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero p{font-size:1.2rem;color:var(--text-muted);max-width:660px;margin:0 auto 40px}
+    .hero-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:10px;font-weight:600;font-size:1rem;border:none;cursor:pointer;transition:all .2s}
+    .btn-primary{background:var(--gradient);color:#fff}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(6,182,212,.25)}
+    .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+    .btn-outline:hover{border-color:var(--text-dim);background:var(--bg-card)}
+    .hero-terminal{max-width:700px;margin:60px auto 0;background:#0d1117;border:1px solid var(--border);border-radius:12px;overflow:hidden;text-align:left}
+    .terminal-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;background:#161b22;border-bottom:1px solid var(--border)}
+    .terminal-dot{width:12px;height:12px;border-radius:50%}
+    .terminal-dot.r{background:#ff5f56}.terminal-dot.y{background:#ffbd2e}.terminal-dot.g{background:#27c93f}
+    .terminal-body{padding:20px;font-family:'JetBrains Mono',monospace;font-size:.85rem;line-height:1.8;color:var(--text-muted)}
+    .terminal-body .prompt{color:var(--green)}.terminal-body .cmd{color:var(--text)}.terminal-body .flag{color:var(--cyan)}.terminal-body .comment{color:var(--text-dim)}.terminal-body .output{color:var(--purple)}
+    section{padding:100px 0}
+    .section-label{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--cyan);margin-bottom:16px}
+    .section-title{font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:800;line-height:1.2;margin-bottom:16px}
+    .section-desc{font-size:1.05rem;color:var(--text-muted);max-width:600px;margin-bottom:56px}
+    .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px}
+    .feature-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:32px;transition:all .3s}
+    .feature-card:hover{border-color:rgba(6,182,212,.3);background:var(--bg-card-hover);transform:translateY(-3px)}
+    .feature-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:1.4rem}
+    .feature-icon.cyan{background:var(--cyan-glow);color:var(--cyan)}
+    .feature-icon.purple{background:var(--purple-glow);color:var(--purple)}
+    .feature-icon.green{background:rgba(34,197,94,.15);color:var(--green)}
+    .feature-icon.amber{background:rgba(245,158,11,.15);color:var(--amber)}
+    .feature-card h3{font-size:1.15rem;font-weight:700;margin-bottom:10px}
+    .feature-card p{color:var(--text-muted);font-size:.92rem;line-height:1.65}
+    .arch-section{background:linear-gradient(180deg,transparent,rgba(6,182,212,.03),transparent)}
+    .arch-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+    .arch-visual{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:40px;position:relative}
+    .agent-node{display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:10px;margin-bottom:12px;border:1px solid var(--border);background:var(--bg);transition:border-color .3s}
+    .agent-node:hover{border-color:var(--cyan)}
+    .agent-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+    .agent-node .name{font-weight:600;font-size:.9rem}
+    .agent-node .role{color:var(--text-dim);font-size:.78rem}
+    .agent-connector{width:2px;height:16px;background:var(--border);margin:0 0 0 23px}
+    .arch-details h3{font-size:1.6rem;font-weight:800;margin-bottom:20px}
+    .arch-details p{color:var(--text-muted);margin-bottom:20px;font-size:.95rem}
+    .arch-list{list-style:none}
+    .arch-list li{display:flex;align-items:flex-start;gap:12px;padding:10px 0;color:var(--text-muted);font-size:.92rem}
+    .arch-list li .check{color:var(--green);flex-shrink:0;margin-top:2px}
+    .compat-section{text-align:center}
+    .compat-row{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-bottom:32px}
+    .compat-chip{display:flex;align-items:center;gap:10px;padding:14px 24px;border-radius:12px;background:var(--bg-card);border:1px solid var(--border);font-weight:600;font-size:.95rem;transition:all .2s}
+    .compat-chip:hover{border-color:var(--cyan);transform:translateY(-2px)}
+    .compat-chip .icon{font-size:1.3rem}
+    .compat-divider{display:flex;align-items:center;gap:16px;justify-content:center;margin:16px 0;color:var(--text-dim);font-size:.8rem;text-transform:uppercase;letter-spacing:2px}
+    .compat-divider::before,.compat-divider::after{content:'';width:60px;height:1px;background:var(--border)}
+    .steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;counter-reset:step}
+    .step-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:32px;position:relative;counter-increment:step}
+    .step-card::before{content:counter(step);position:absolute;top:-14px;left:24px;width:28px;height:28px;border-radius:50%;background:var(--gradient);color:#fff;font-weight:700;font-size:.82rem;display:flex;align-items:center;justify-content:center}
+    .step-card h3{font-size:1.05rem;font-weight:700;margin-bottom:10px}
+    .step-card p{color:var(--text-muted);font-size:.88rem}
+    .step-card code{display:block;margin-top:12px;background:#0d1117;padding:10px 14px;border-radius:8px;font-size:.82rem;color:var(--cyan);border:1px solid var(--border);overflow-x:auto}
+    .stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;padding:48px 0}
+    .stat{text-align:center}
+    .stat .number{font-size:2.4rem;font-weight:900;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .stat .label{color:var(--text-dim);font-size:.85rem;margin-top:4px}
+    footer{border-top:1px solid var(--border);padding:48px 0;text-align:center;color:var(--text-dim);font-size:.85rem}
+    footer .footer-links{display:flex;gap:24px;justify-content:center;margin-bottom:16px}
+    footer a{color:var(--text-muted)}
+    @media(max-width:768px){.arch-grid{grid-template-columns:1fr}.stats-bar{grid-template-columns:repeat(2,1fr);gap:32px}.nav-links{display:none}.features-grid{grid-template-columns:1fr}}
+    .fade-up{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
+    .fade-up.visible{opacity:1;transform:translateY(0)}
+  </style>
+</head>
+<body>
+  <nav><div class="container"><div class="nav-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>DB Migration Agent</div><div class="nav-links"><a href="#features">Features</a><a href="#agents">Agents</a><a href="#compatibility">Compatibility</a><a href="#get-started">Get Started</a></div><a href="#get-started" class="nav-cta" style="color:#fff">Quick Start</a></div></nav>
+  <section class="hero"><div class="container">
+    <div class="hero-badge"><span class="dot"></span> AI-Powered Multi-Agent System</div>
+    <h1>Database Migration,<br/>Intelligently Automated</h1>
+    <p>End-to-end migration between PostgreSQL, MySQL, and SQL Server across AWS, Azure, and GCP. Powered by a hybrid AI multi-agent architecture that assesses, plans, executes, validates, and rolls back.</p>
+    <div class="hero-buttons"><a href="#get-started" class="btn btn-primary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Get Started</a><a href="#agents" class="btn btn-outline"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>How It Works</a></div>
+    <div class="hero-terminal fade-up"><div class="terminal-bar"><span class="terminal-dot r"></span><span class="terminal-dot y"></span><span class="terminal-dot g"></span></div><div class="terminal-body"><span class="comment"># Run an AI-powered migration assessment</span><br/><span class="prompt">$</span> <span class="cmd">dbmigrate migrate</span> <span class="flag">--config</span> postgres_to_aurora.yaml<br/><br/><span class="output">&#x2714; Assessment Agent</span> Readiness score: 87/100<br/><span class="output">&#x2714; Schema Agent</span> 24 tables created (topological order)<br/><span class="output">&#x2714; Data Agent</span> 2.4M rows migrated @ 48K rows/sec<br/><span class="output">&#x2714; Validation Agent</span> Checksums verified, 0 mismatches<br/><br/><span class="comment"># Migration completed in 4m 12s</span></div></div>
+  </div></section>
+  <div class="container"><div class="stats-bar fade-up"><div class="stat"><div class="number">6</div><div class="label">AI Agents</div></div><div class="stat"><div class="number">3</div><div class="label">Database Engines</div></div><div class="stat"><div class="number">3</div><div class="label">Cloud Providers</div></div><div class="stat"><div class="number">60+</div><div class="label">Type Mappings</div></div></div></div>
+  <section id="features"><div class="container"><div class="section-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Capabilities</div><h2 class="section-title">Everything You Need to Migrate</h2><p class="section-desc">From schema introspection to post-migration validation, every stage is handled with precision and intelligence.</p>
+    <div class="features-grid fade-up">
+      <div class="feature-card"><div class="feature-icon cyan">&#x1f9e0;</div><h3>Hybrid AI Decision Engine</h3><p>Rule-based logic for critical operations with optional LLM integration for intelligent assessment, recommendations, and error diagnosis.</p></div>
+      <div class="feature-card"><div class="feature-icon purple">&#x1f50d;</div><h3>Schema Introspection &amp; Mapping</h3><p>Automatic schema discovery with 60+ cross-database type mappings. Topological sort ensures foreign keys are created in the correct order.</p></div>
+      <div class="feature-card"><div class="feature-icon green">&#x26a1;</div><h3>High-Speed Data Pipeline</h3><p>Native bulk loading (COPY, multi-value INSERT, BCP) with adaptive batch sizing, checkpoint recovery, and throughput-optimized streaming.</p></div>
+      <div class="feature-card"><div class="feature-icon amber">&#x1f6e1;</div><h3>Post-Migration Validation</h3><p>Row count verification, MD5/SHA-256 checksums, sample row comparison, constraint and index validation.</p></div>
+      <div class="feature-card"><div class="feature-icon cyan">&#x2601;&#xfe0f;</div><h3>Multi-Cloud Native</h3><p>First-class support for AWS RDS/Aurora, Azure SQL Database, and Google Cloud SQL with integrated secret management and IAM auth.</p></div>
+      <div class="feature-card"><div class="feature-icon purple">&#x1f4ca;</div><h3>Web Dashboard &amp; Reports</h3><p>Real-time migration monitoring via WebSocket, interactive assessment dashboard, AI chat assistant, and professional PDF reports.</p></div>
+    </div></div></section>
+  <section id="agents" class="arch-section"><div class="container"><div class="section-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.7-2 3.4V11h4a2 2 0 0 1 2 2v2.6c1.2.7 2 1.9 2 3.4a4 4 0 0 1-8 0c0-1.5.8-2.7 2-3.4V13h-8v2.6c1.2.7 2 1.9 2 3.4a4 4 0 0 1-8 0c0-1.5.8-2.7 2-3.4V13a2 2 0 0 1 2-2h4V9.4C9.8 8.7 8 7.5 8 6a4 4 0 0 1 4-4z"/></svg>Architecture</div>
+    <div class="arch-grid fade-up">
+      <div class="arch-visual">
+        <div class="agent-node" style="border-color:var(--purple)"><span class="agent-dot" style="background:var(--purple)"></span><div><div class="name">Orchestrator Agent</div><div class="role">Coordinates all agents, manages workflow</div></div></div><div class="agent-connector"></div>
+        <div class="agent-node" style="border-color:var(--cyan)"><span class="agent-dot" style="background:var(--cyan)"></span><div><div class="name">Assessment Agent</div><div class="role">Analyzes complexity, scores risk, builds plan</div></div></div><div class="agent-connector"></div>
+        <div class="agent-node" style="border-color:var(--cyan)"><span class="agent-dot" style="background:var(--cyan)"></span><div><div class="name">Schema Agent</div><div class="role">Generates DDL, maps types, creates tables</div></div></div><div class="agent-connector"></div>
+        <div class="agent-node" style="border-color:var(--green)"><span class="agent-dot" style="background:var(--green)"></span><div><div class="name">Data Agent</div><div class="role">Extracts, transforms, loads with checkpointing</div></div></div><div class="agent-connector"></div>
+        <div class="agent-node" style="border-color:var(--amber)"><span class="agent-dot" style="background:var(--amber)"></span><div><div class="name">Validation Agent</div><div class="role">Verifies integrity: counts, checksums, samples</div></div></div><div class="agent-connector"></div>
+        <div class="agent-node" style="border-color:var(--red)"><span class="agent-dot" style="background:var(--red)"></span><div><div class="name">Rollback Agent</div><div class="role">Reverts on failure: backup restore or drop</div></div></div>
+      </div>
+      <div class="arch-details"><h3>Six Agents, One Mission</h3><p>The multi-agent system orchestrates every phase of migration with autonomous decision-making, full audit trails, and intelligent fallbacks.</p>
+        <ul class="arch-list"><li><span class="check">&#x2714;</span> State-machine driven lifecycle for each agent</li><li><span class="check">&#x2714;</span> Inter-agent message passing with typed payloads</li><li><span class="check">&#x2714;</span> Decision audit trail with confidence scoring</li><li><span class="check">&#x2714;</span> Risk-based abort thresholds (score &lt; 30 = auto-cancel)</li><li><span class="check">&#x2714;</span> Automatic rollback on any stage failure</li><li><span class="check">&#x2714;</span> Real-time WebSocket progress streaming</li><li><span class="check">&#x2714;</span> PDF assessment reports with executive summary</li></ul>
+      </div></div></div></section>
+  <section id="compatibility" class="compat-section"><div class="container"><div class="section-label" style="justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>Compatibility</div><h2 class="section-title">Databases &amp; Clouds</h2><p class="section-desc" style="margin-left:auto;margin-right:auto">Migrate in any direction between supported databases and cloud providers.</p>
+    <div class="compat-row fade-up"><div class="compat-chip"><span class="icon">&#x1f418;</span> PostgreSQL</div><div class="compat-chip"><span class="icon">&#x1f42c;</span> MySQL</div><div class="compat-chip"><span class="icon">&#x1f4be;</span> SQL Server</div></div>
+    <div class="compat-divider">Cloud Targets</div>
+    <div class="compat-row fade-up"><div class="compat-chip"><span class="icon" style="color:#ff9900">&#x25b2;</span> AWS RDS / Aurora</div><div class="compat-chip"><span class="icon" style="color:#0078d4">&#x25c6;</span> Azure SQL Database</div><div class="compat-chip"><span class="icon" style="color:#4285f4">&#x25cf;</span> Google Cloud SQL</div></div>
+  </div></section>
+  <section id="get-started"><div class="container"><div class="section-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>Quick Start</div><h2 class="section-title">Up and Running in Minutes</h2><p class="section-desc">Four steps from install to a fully validated migration.</p>
+    <div class="steps-grid fade-up">
+      <div class="step-card"><h3>Install</h3><p>Clone the repo and install with pip in development mode.</p><code>pip install -e ".[dev]"</code></div>
+      <div class="step-card"><h3>Configure</h3><p>Generate a starter config and fill in your database credentials.</p><code>dbmigrate config generate --output my_migration.yaml</code></div>
+      <div class="step-card"><h3>Assess</h3><p>Run the AI assessment agent to evaluate risk and get recommendations.</p><code>dbmigrate migrate --config my_migration.yaml --assess-only</code></div>
+      <div class="step-card"><h3>Migrate</h3><p>Execute the full migration with real-time progress and validation.</p><code>dbmigrate migrate --config my_migration.yaml</code></div>
+    </div></div></section>
+  <section style="padding:80px 0"><div class="container" style="text-align:center"><div class="fade-up" style="background:linear-gradient(135deg,rgba(6,182,212,.08),rgba(168,85,247,.08));border:1px solid var(--border);border-radius:20px;padding:60px 40px"><h2 style="font-size:2rem;font-weight:800;margin-bottom:16px">Prefer a Visual Interface?</h2><p style="color:var(--text-muted);max-width:500px;margin:0 auto 32px;font-size:1.05rem">Launch the web dashboard for a full migration wizard, real-time monitoring, AI chat assistant, and interactive assessment reports.</p><div style="display:inline-block;background:#0d1117;border:1px solid var(--border);border-radius:10px;padding:16px 28px"><code style="font-size:.95rem;color:var(--cyan)">./web/run.sh</code></div></div></div></section>
+  <footer><div class="container"><div class="footer-links"><a href="#features">Features</a><a href="#agents">Agents</a><a href="#compatibility">Compatibility</a><a href="#get-started">Get Started</a></div><p>DB Migration Agent &mdash; AI-Powered Database Migration</p></div></footer>
+  <script>const observer=new IntersectionObserver(e=>{e.forEach(e=>{e.isIntersecting&&e.target.classList.add('visible')})},{threshold:.1});document.querySelectorAll('.fade-up').forEach(e=>observer.observe(e))</script>
+</body>
+</html>
