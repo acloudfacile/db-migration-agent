@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DB Migration Agent â AI-Powered Database Migration</title>
+  <title>DB Migration Agent — AI-Powered Database Migration</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
@@ -61,27 +61,27 @@
 <script type="text/babel">
 const {useState,useEffect,useRef,useCallback} = React;
 
-// ââ DATA ââ
+// ── DATA ──
 const DB_TYPES = [
-  {id:'postgresql',name:'PostgreSQL',icon:'ð',color:'#336791'},
-  {id:'mysql',name:'MySQL',icon:'ð¬',color:'#4479A1'},
-  {id:'sqlserver',name:'SQL Server',icon:'ð¾',color:'#CC2927'},
-  {id:'oracle',name:'Oracle',icon:'ð´',color:'#F80000'},
-  {id:'sybase',name:'Sybase/SAP ASE',icon:'ð·',color:'#0FAAFF'},
+  {id:'postgresql',name:'PostgreSQL',icon:'🐘',color:'#336791'},
+  {id:'mysql',name:'MySQL',icon:'🐬',color:'#4479A1'},
+  {id:'sqlserver',name:'SQL Server',icon:'💾',color:'#CC2927'},
+  {id:'oracle',name:'Oracle',icon:'🔴',color:'#F80000'},
+  {id:'sybase',name:'Sybase/SAP ASE',icon:'🔷',color:'#0FAAFF'},
 ];
 const CLOUD_TARGETS = [
-  {id:'aws',name:'AWS RDS / Aurora',icon:'â²',color:'#FF9900'},
-  {id:'azure',name:'Azure SQL',icon:'â',color:'#0078D4'},
-  {id:'gcp',name:'Google Cloud SQL',icon:'â',color:'#4285F4'},
-  {id:'onprem',name:'On-Premise',icon:'ð¥',color:'#94a3b8'},
+  {id:'aws',name:'AWS RDS / Aurora',icon:'▲',color:'#FF9900'},
+  {id:'azure',name:'Azure SQL',icon:'◆',color:'#0078D4'},
+  {id:'gcp',name:'Google Cloud SQL',icon:'●',color:'#4285F4'},
+  {id:'onprem',name:'On-Premise',icon:'🖥',color:'#94a3b8'},
 ];
 const AGENTS = [
-  {id:'orchestrator',name:'Orchestrator Agent',role:'Coordinates all agents, manages workflow and risk gates',color:'var(--purple)',states:['IDLE','PLANNING','DISPATCHING','MONITORING','COMPLETED'],decisions:['Determine execution order','Gate on risk score','Trigger rollback on failure'],icon:'ð¯'},
-  {id:'assessment',name:'Assessment Agent',role:'Analyzes schema complexity, data volumes, cross-DB compatibility, risk scoring',color:'var(--cyan)',states:['IDLE','CONNECTING','ANALYZING_SCHEMA','ANALYZING_DATA','SCORING','REPORTING'],decisions:['Evaluate type compatibility','Score migration risk 0-100','Estimate migration duration','Generate recommendations'],icon:'ð'},
-  {id:'schema',name:'Schema Agent',role:'Generates DDL, maps 60+ types across databases, topological FK ordering',color:'var(--cyan)',states:['IDLE','INTROSPECTING','MAPPING_TYPES','GENERATING_DDL','CREATING_TABLES','VERIFYING'],decisions:['Map source types to target','Resolve FK dependency order','Handle unsupported types with fallback'],icon:'ð'},
-  {id:'data',name:'Data Agent',role:'Extracts, transforms, and loads data with adaptive batching and checkpoints',color:'var(--green)',states:['IDLE','EXTRACTING','TRANSFORMING','LOADING','CHECKPOINTING'],decisions:['Calculate optimal batch size','Select bulk load method','Manage checkpoint recovery'],icon:'â¡'},
-  {id:'validation',name:'Validation Agent',role:'Row counts, MD5/SHA256 checksums, sample row comparison, constraint checks',color:'var(--amber)',states:['IDLE','COUNTING_ROWS','COMPUTING_CHECKSUMS','SAMPLING_ROWS','CHECKING_CONSTRAINTS'],decisions:['Compare row counts with tolerance','Verify data integrity via checksums','Flag constraint violations'],icon:'ð¡'},
-  {id:'rollback',name:'Rollback Agent',role:'Reverts migration on failure â cloud backup restore or table drop',color:'var(--red)',states:['IDLE','ANALYZING_FAILURE','RESTORING_BACKUP','DROPPING_TABLES','VERIFYING_ROLLBACK'],decisions:['Determine rollback strategy','Choose backup restore vs drop','Verify clean rollback state'],icon:'â©ï¸'},
+  {id:'orchestrator',name:'Orchestrator Agent',role:'Coordinates all agents, manages workflow and risk gates',color:'var(--purple)',states:['IDLE','PLANNING','DISPATCHING','MONITORING','COMPLETED'],decisions:['Determine execution order','Gate on risk score','Trigger rollback on failure'],icon:'🎯'},
+  {id:'assessment',name:'Assessment Agent',role:'Analyzes schema complexity, data volumes, cross-DB compatibility, risk scoring',color:'var(--cyan)',states:['IDLE','CONNECTING','ANALYZING_SCHEMA','ANALYZING_DATA','SCORING','REPORTING'],decisions:['Evaluate type compatibility','Score migration risk 0-100','Estimate migration duration','Generate recommendations'],icon:'🔍'},
+  {id:'schema',name:'Schema Agent',role:'Generates DDL, maps 60+ types across databases, topological FK ordering',color:'var(--cyan)',states:['IDLE','INTROSPECTING','MAPPING_TYPES','GENERATING_DDL','CREATING_TABLES','VERIFYING'],decisions:['Map source types to target','Resolve FK dependency order','Handle unsupported types with fallback'],icon:'📋'},
+  {id:'data',name:'Data Agent',role:'Extracts, transforms, and loads data with adaptive batching and checkpoints',color:'var(--green)',states:['IDLE','EXTRACTING','TRANSFORMING','LOADING','CHECKPOINTING'],decisions:['Calculate optimal batch size','Select bulk load method','Manage checkpoint recovery'],icon:'⚡'},
+  {id:'validation',name:'Validation Agent',role:'Row counts, MD5/SHA256 checksums, sample row comparison, constraint checks',color:'var(--amber)',states:['IDLE','COUNTING_ROWS','COMPUTING_CHECKSUMS','SAMPLING_ROWS','CHECKING_CONSTRAINTS'],decisions:['Compare row counts with tolerance','Verify data integrity via checksums','Flag constraint violations'],icon:'🛡'},
+  {id:'rollback',name:'Rollback Agent',role:'Reverts migration on failure — cloud backup restore or table drop',color:'var(--red)',states:['IDLE','ANALYZING_FAILURE','RESTORING_BACKUP','DROPPING_TABLES','VERIFYING_ROLLBACK'],decisions:['Determine rollback strategy','Choose backup restore vs drop','Verify clean rollback state'],icon:'↩️'},
 ];
 
 const SAMPLE_TABLES = [
@@ -97,12 +97,12 @@ const SAMPLE_TABLES = [
   {name:'audit_log',rows:12400000,cols:7,size:'1.2 GB',fks:1},
 ];
 
-// ââ COMPONENTS ââ
+// ── COMPONENTS ──
 const Nav = ({section,setSection}) => (
   <nav>
     <div className="container" style={{display:'flex',alignItems:'center',justifyContent:'space-between',height:56}}>
       <div style={{display:'flex',alignItems:'center',gap:10,fontWeight:700,fontSize:'1.05rem'}}>
-        <span style={{fontSize:'1.3rem'}}>ðï¸</span> DB Migration Agent
+        <span style={{fontSize:'1.3rem'}}>🗄️</span> DB Migration Agent
       </div>
       <div style={{display:'flex',gap:6}}>
         {['home','agents','config','demo','report'].map(s=>(
@@ -130,7 +130,7 @@ const ScoreRing = ({score,size=120,stroke=8}) => {
   );
 };
 
-// ââ HOME SECTION ââ
+// ── HOME SECTION ──
 const HomeSection = ({setSection}) => (
   <div style={{textAlign:'center',paddingTop:100}}>
     <div style={{display:'inline-flex',alignItems:'center',gap:8,background:'rgba(6,182,212,.1)',border:'1px solid rgba(6,182,212,.3)',padding:'6px 16px',borderRadius:100,fontSize:'.82rem',color:'var(--cyan)',fontWeight:500,marginBottom:28}}>
@@ -145,10 +145,10 @@ const HomeSection = ({setSection}) => (
     </p>
     <div style={{display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap'}}>
       <button className="btn btn-primary" onClick={()=>setSection('config')}>
-        â¶ Start Migration
+        ▶ Start Migration
       </button>
       <button className="btn btn-outline" onClick={()=>setSection('agents')}>
-        â¹ï¸ Explore Agents
+        ℹ️ Explore Agents
       </button>
     </div>
 
@@ -170,17 +170,17 @@ const HomeSection = ({setSection}) => (
       <div className="terminal-body" style={{color:'var(--muted)'}}>
         <span style={{color:'var(--dim)'}}># Run an AI-powered migration assessment</span><br/>
         <span style={{color:'var(--green)'}}>$</span> <span style={{color:'var(--text)'}}>dbmigrate migrate</span> <span style={{color:'var(--cyan)'}}>--config</span> oracle_to_aurora.yaml<br/><br/>
-        <span style={{color:'var(--purple)'}}>â Assessment Agent</span> &nbsp;Readiness: 87/100<br/>
-        <span style={{color:'var(--purple)'}}>â Schema Agent</span> &nbsp;&nbsp;&nbsp;&nbsp;32 tables mapped (topological order)<br/>
-        <span style={{color:'var(--purple)'}}>â Data Agent</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4.2M rows @ 52K rows/sec<br/>
-        <span style={{color:'var(--purple)'}}>â Validation Agent</span> &nbsp;Checksums verified, 0 mismatches<br/><br/>
+        <span style={{color:'var(--purple)'}}>✔ Assessment Agent</span> &nbsp;Readiness: 87/100<br/>
+        <span style={{color:'var(--purple)'}}>✔ Schema Agent</span> &nbsp;&nbsp;&nbsp;&nbsp;32 tables mapped (topological order)<br/>
+        <span style={{color:'var(--purple)'}}>✔ Data Agent</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4.2M rows @ 52K rows/sec<br/>
+        <span style={{color:'var(--purple)'}}>✔ Validation Agent</span> &nbsp;Checksums verified, 0 mismatches<br/><br/>
         <span style={{color:'var(--dim)'}}># Migration completed in 6m 34s</span>
       </div>
     </div>
   </div>
 );
 
-// ââ AGENTS EXPLORER ââ
+// ── AGENTS EXPLORER ──
 const AgentsSection = () => {
   const [sel,setSel] = useState('orchestrator');
   const agent = AGENTS.find(a=>a.id===sel);
@@ -217,7 +217,7 @@ const AgentsSection = () => {
               {agent.states.map((s,i)=>(
                 <React.Fragment key={s}>
                   <span style={{background:'var(--bg)',border:'1px solid var(--border)',padding:'4px 10px',borderRadius:6,fontSize:'.78rem',fontFamily:'JetBrains Mono'}}>{s}</span>
-                  {i<agent.states.length-1 && <span style={{color:'var(--dim)',fontSize:'.8rem'}}>â</span>}
+                  {i<agent.states.length-1 && <span style={{color:'var(--dim)',fontSize:'.8rem'}}>→</span>}
                 </React.Fragment>
               ))}
             </div>
@@ -226,7 +226,7 @@ const AgentsSection = () => {
             <label>Decision Points</label>
             {agent.decisions.map(d=>(
               <div key={d} style={{display:'flex',alignItems:'center',gap:8,padding:'8px 0',color:'var(--muted)',fontSize:'.88rem'}}>
-                <span style={{color:'var(--green)'}}>â</span> {d}
+                <span style={{color:'var(--green)'}}>✔</span> {d}
               </div>
             ))}
           </div>
@@ -236,7 +236,7 @@ const AgentsSection = () => {
   );
 };
 
-// ââ CONFIG BUILDER ââ
+// ── CONFIG BUILDER ──
 const ConfigSection = ({config,setConfig,onExplore}) => {
   const update = (k,v) => setConfig(p=>({...p,[k]:v}));
   return (
@@ -245,7 +245,7 @@ const ConfigSection = ({config,setConfig,onExplore}) => {
       <p style={{color:'var(--muted)',marginBottom:32}}>Configure your migration and click Explore to simulate the AI agents.</p>
       <div className="grid-2">
         <div className="card">
-          <h3 style={{fontSize:'1.1rem',fontWeight:700,marginBottom:16}}>ð¹ Source Database</h3>
+          <h3 style={{fontSize:'1.1rem',fontWeight:700,marginBottom:16}}>🔹 Source Database</h3>
           <label>Database Type</label>
           <select value={config.sourceDb} onChange={e=>update('sourceDb',e.target.value)} style={{marginBottom:12}}>
             <option value="">Select source...</option>
@@ -259,11 +259,11 @@ const ConfigSection = ({config,setConfig,onExplore}) => {
           </div>
           <div className="grid-2" style={{marginTop:12}}>
             <div><label>Username</label><input value={config.sourceUser} onChange={e=>update('sourceUser',e.target.value)} placeholder="admin"/></div>
-            <div><label>Password</label><input type="password" value={config.sourcePass} onChange={e=>update('sourcePass',e.target.value)} placeholder="â¢â¢â¢â¢â¢â¢â¢â¢"/></div>
+            <div><label>Password</label><input type="password" value={config.sourcePass} onChange={e=>update('sourcePass',e.target.value)} placeholder="••••••••"/></div>
           </div>
         </div>
         <div className="card">
-          <h3 style={{fontSize:'1.1rem',fontWeight:700,marginBottom:16}}>ð¸ Target</h3>
+          <h3 style={{fontSize:'1.1rem',fontWeight:700,marginBottom:16}}>🔸 Target</h3>
           <label>Cloud / Target</label>
           <select value={config.targetCloud} onChange={e=>update('targetCloud',e.target.value)} style={{marginBottom:12}}>
             <option value="">Select target...</option>
@@ -283,7 +283,7 @@ const ConfigSection = ({config,setConfig,onExplore}) => {
         </div>
       </div>
       <div className="card" style={{marginTop:20}}>
-        <h3 style={{fontSize:'1.1rem',fontWeight:700,marginBottom:16}}>âï¸ Migration Options</h3>
+        <h3 style={{fontSize:'1.1rem',fontWeight:700,marginBottom:16}}>⚙️ Migration Options</h3>
         <div className="grid-3">
           <div>
             <label>Batch Size</label>
@@ -307,7 +307,7 @@ const ConfigSection = ({config,setConfig,onExplore}) => {
       </div>
       <div style={{display:'flex',gap:12,marginTop:24,justifyContent:'center'}}>
         <button className="btn btn-primary" disabled={!config.sourceDb||!config.targetDb} onClick={onExplore}>
-          ð Explore &amp; Run AI Agents
+          🚀 Explore &amp; Run AI Agents
         </button>
         <button className="btn btn-outline" onClick={()=>{
           const y = `# DB Migration Agent Config\nsource:\n  type: ${config.sourceDb||'postgresql'}\n  host: ${config.sourceHost||'localhost'}\n  port: ${config.sourcePort||'5432'}\n  database: ${config.sourceDatabase||'mydb'}\n  username: ${config.sourceUser||'admin'}\n\ntarget:\n  cloud: ${config.targetCloud||'aws'}\n  type: ${config.targetDb||'postgresql'}\n  host: ${config.targetHost||'target.rds.amazonaws.com'}\n  port: ${config.targetPort||'5432'}\n  database: ${config.targetDatabase||'target_db'}\n\noptions:\n  batch_size: ${config.batchSize}\n  validation: ${config.validation}\n  parallelism: ${config.parallelism}\n`;
@@ -317,14 +317,14 @@ const ConfigSection = ({config,setConfig,onExplore}) => {
           a.download='migration_config.yaml';
           a.click();
         }}>
-          ð¥ Download YAML
+          📥 Download YAML
         </button>
       </div>
     </div>
   );
 };
 
-// ââ AGENT DEMO ââ
+// ── AGENT DEMO ──
 const DemoSection = ({config}) => {
   const [phase,setPhase] = useState(0); // 0=idle,1=exploring,2+=agents running
   const [logs,setLogs] = useState([]);
@@ -349,19 +349,19 @@ const DemoSection = ({config}) => {
     // Phase 1: Exploring
     addLog(`Connecting to ${src} at ${config.sourceHost||'localhost'}...`,'var(--cyan)');
     await sleep(800);
-    addLog('â Connection established','var(--green)');
+    addLog('✔ Connection established','var(--green)');
     await sleep(400);
     addLog('Discovering schema...','var(--cyan)');
     await sleep(1200);
     const discovered = SAMPLE_TABLES.slice(0,6+Math.floor(Math.random()*4));
     setTables(discovered);
-    addLog(`â Found ${discovered.length} tables, ${discovered.reduce((s,t)=>s+t.rows,0).toLocaleString()} total rows`,'var(--green)');
+    addLog(`✔ Found ${discovered.length} tables, ${discovered.reduce((s,t)=>s+t.rows,0).toLocaleString()} total rows`,'var(--green)');
     await sleep(600);
 
     // Phase 2: Assessment Agent
     setPhase(2);
     setAgentStates(p=>({...p,assessment:'running'}));
-    addLog('\nð Assessment Agent starting...','var(--purple)');
+    addLog('\n🔍 Assessment Agent starting...','var(--purple)');
     await sleep(500);
     addLog('  Analyzing schema complexity...','var(--muted)');
     await sleep(800);
@@ -374,18 +374,18 @@ const DemoSection = ({config}) => {
     setScore(riskScore);
     const demoRisks = [
       riskScore<80 && {level:'medium',msg:`Large table detected: order_items (5.4M rows) may need batching optimization`},
-      config.sourceDb!==config.targetDb && {level:'high',msg:`Cross-DB migration (${src} â ${tgt}): ${3+Math.floor(Math.random()*5)} type mappings require attention`},
+      config.sourceDb!==config.targetDb && {level:'high',msg:`Cross-DB migration (${src} → ${tgt}): ${3+Math.floor(Math.random()*5)} type mappings require attention`},
       {level:'low',msg:'All foreign key dependencies can be resolved in topological order'},
       riskScore<75 && {level:'medium',msg:'audit_log table (12.4M rows, 1.2 GB) will take the longest to migrate'},
     ].filter(Boolean);
     setRisks(riskScore < 80 ? demoRisks : demoRisks.filter(r=>r.level!=='high'));
-    addLog(`  â Readiness Score: ${riskScore}/100`,'var(--green)');
+    addLog(`  ✔ Readiness Score: ${riskScore}/100`,'var(--green)');
     setAgentStates(p=>({...p,assessment:'done'}));
     await sleep(400);
 
     // Phase 3: Schema Agent
     setAgentStates(p=>({...p,schema:'running'}));
-    addLog('\nð Schema Agent starting...','var(--purple)');
+    addLog('\n📋 Schema Agent starting...','var(--purple)');
     await sleep(400);
     addLog(`  Generating DDL for ${tgt}...`,'var(--muted)');
     await sleep(900);
@@ -393,13 +393,13 @@ const DemoSection = ({config}) => {
     await sleep(700);
     addLog(`  Creating ${discovered.length} tables in topological order...`,'var(--muted)');
     await sleep(800);
-    addLog(`  â Schema created successfully`,'var(--green)');
+    addLog(`  ✔ Schema created successfully`,'var(--green)');
     setAgentStates(p=>({...p,schema:'done'}));
     await sleep(400);
 
     // Phase 4: Data Agent
     setAgentStates(p=>({...p,data:'running'}));
-    addLog('\nâ¡ Data Agent starting...','var(--purple)');
+    addLog('\n⚡ Data Agent starting...','var(--purple)');
     const totalRows = discovered.reduce((s,t)=>s+t.rows,0);
     let migrated = 0;
     for (const t of discovered) {
@@ -407,32 +407,32 @@ const DemoSection = ({config}) => {
       migrated += t.rows;
       const pct = Math.round(migrated/totalRows*100);
       const speed = (20000+Math.floor(Math.random()*40000)).toLocaleString();
-      addLog(`  â ${t.name}: ${t.rows.toLocaleString()} rows @ ${speed} rows/sec (${pct}%)`,'var(--cyan)');
+      addLog(`  ✔ ${t.name}: ${t.rows.toLocaleString()} rows @ ${speed} rows/sec (${pct}%)`,'var(--cyan)');
     }
     setStats({totalRows,tables:discovered.length,speed:'48K',duration:`${2+Math.floor(Math.random()*6)}m ${Math.floor(Math.random()*59)}s`});
-    addLog(`  â All data migrated: ${totalRows.toLocaleString()} rows`,'var(--green)');
+    addLog(`  ✔ All data migrated: ${totalRows.toLocaleString()} rows`,'var(--green)');
     setAgentStates(p=>({...p,data:'done'}));
     await sleep(400);
 
     // Phase 5: Validation Agent
     setAgentStates(p=>({...p,validation:'running'}));
-    addLog('\nð¡ Validation Agent starting...','var(--purple)');
+    addLog('\n🛡 Validation Agent starting...','var(--purple)');
     await sleep(500);
     addLog('  Verifying row counts...','var(--muted)');
     await sleep(600);
-    addLog(`  â Row counts match: ${totalRows.toLocaleString()} / ${totalRows.toLocaleString()}`,'var(--green)');
+    addLog(`  ✔ Row counts match: ${totalRows.toLocaleString()} / ${totalRows.toLocaleString()}`,'var(--green)');
     await sleep(400);
     addLog('  Computing checksums (MD5)...','var(--muted)');
     await sleep(800);
-    addLog('  â All checksums verified, 0 mismatches','var(--green)');
+    addLog('  ✔ All checksums verified, 0 mismatches','var(--green)');
     await sleep(400);
     addLog('  Sampling random rows for deep comparison...','var(--muted)');
     await sleep(600);
-    addLog('  â 500 sample rows validated, 100% match','var(--green)');
+    addLog('  ✔ 500 sample rows validated, 100% match','var(--green)');
     setAgentStates(p=>({...p,validation:'done'}));
     await sleep(300);
 
-    addLog(`\nð Migration completed successfully!`,'var(--green)');
+    addLog(`\n🎉 Migration completed successfully!`,'var(--green)');
     setPhase(99);
   };
 
@@ -450,7 +450,7 @@ const DemoSection = ({config}) => {
       {phase===0 && (
         <div style={{textAlign:'center',padding:'60px 0'}}>
           <button className="btn btn-primary" style={{fontSize:'1.1rem',padding:'14px 32px'}} onClick={runDemo} disabled={!config.sourceDb}>
-            ð Launch Agent Pipeline
+            🚀 Launch Agent Pipeline
           </button>
           {!config.sourceDb && <p style={{color:'var(--dim)',marginTop:12,fontSize:'.85rem'}}>Configure your migration first in the Config Builder tab.</p>}
         </div>
@@ -465,7 +465,7 @@ const DemoSection = ({config}) => {
                 const st = agentStates[id];
                 return (
                   <div key={id} style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px',borderRadius:8,background:'var(--bg2)',border:'1px solid var(--border)',fontSize:'.8rem',fontWeight:600}}>
-                    {st==='running'?<span className="spinner"></span>:st==='done'?<span style={{color:'var(--green)'}}>â</span>:<span style={{color:'var(--dim)'}}>â</span>}
+                    {st==='running'?<span className="spinner"></span>:st==='done'?<span style={{color:'var(--green)'}}>✔</span>:<span style={{color:'var(--dim)'}}>○</span>}
                     {a.name.replace(' Agent','')}
                   </div>
                 );
@@ -503,7 +503,7 @@ const DemoSection = ({config}) => {
                   {tables.map(t=>(
                     <div key={t.name} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid var(--border)',fontSize:'.82rem'}}>
                       <code style={{color:'var(--cyan)'}}>{t.name}</code>
-                      <span style={{color:'var(--dim)'}}>{t.rows.toLocaleString()} rows Â· {t.size}</span>
+                      <span style={{color:'var(--dim)'}}>{t.rows.toLocaleString()} rows · {t.size}</span>
                     </div>
                   ))}
                 </div>
@@ -515,7 +515,7 @@ const DemoSection = ({config}) => {
                 <label style={{marginBottom:8}}>Risk Assessment</label>
                 {risks.map((r,i)=>(
                   <div key={i} className={`risk-${r.level}`} style={{padding:'8px 12px',borderRadius:8,marginBottom:6,fontSize:'.82rem'}}>
-                    {r.level==='high'?'ð´':r.level==='medium'?'ð¡':'ð¢'} {r.msg}
+                    {r.level==='high'?'🔴':r.level==='medium'?'🟡':'🟢'} {r.msg}
                   </div>
                 ))}
               </div>
@@ -523,7 +523,7 @@ const DemoSection = ({config}) => {
 
             {phase===99 && stats.totalRows && (
               <div className="card" style={{marginTop:16,background:'rgba(34,197,94,.05)',borderColor:'rgba(34,197,94,.3)'}}>
-                <label style={{marginBottom:8,color:'var(--green)'}}>Migration Complete â</label>
+                <label style={{marginBottom:8,color:'var(--green)'}}>Migration Complete ✔</label>
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,fontSize:'.88rem'}}>
                   <div><span style={{color:'var(--dim)'}}>Tables:</span> {stats.tables}</div>
                   <div><span style={{color:'var(--dim)'}}>Rows:</span> {stats.totalRows.toLocaleString()}</div>
@@ -539,7 +539,7 @@ const DemoSection = ({config}) => {
   );
 };
 
-// ââ REPORT SECTION ââ
+// ── REPORT SECTION ──
 const ReportSection = ({config,onGenerate}) => {
   const [report,setReport] = useState(null);
   const generate = () => {
@@ -548,14 +548,14 @@ const ReportSection = ({config,onGenerate}) => {
     const cld = CLOUD_TARGETS.find(c=>c.id===config.targetCloud)?.name||'AWS';
     const sc = 65+Math.floor(Math.random()*25);
     setReport({
-      title:`Migration Assessment: ${src} â ${tgt} (${cld})`,
+      title:`Migration Assessment: ${src} → ${tgt} (${cld})`,
       date:new Date().toLocaleDateString(),
       score:sc,
       summary:`The migration from ${src} to ${tgt} on ${cld} has been assessed with a readiness score of ${sc}/100. ${sc>=70?'The migration is recommended to proceed with standard precautions.':'Additional review is recommended before proceeding.'}`,
       schema:{tables:SAMPLE_TABLES.length,columns:SAMPLE_TABLES.reduce((s,t)=>s+t.cols,0),fks:SAMPLE_TABLES.reduce((s,t)=>s+t.fks,0),typeMappings:18+Math.floor(Math.random()*12)},
       data:{totalRows:SAMPLE_TABLES.reduce((s,t)=>s+t.rows,0),totalSize:'2.3 GB',largestTable:'audit_log (12.4M rows)',estimatedTime:`${8+Math.floor(Math.random()*12)} minutes`},
       risks:[
-        {level:'high',title:'Cross-DB Type Incompatibility',desc:`${3+Math.floor(Math.random()*4)} column types require manual review (e.g., ${src} ARRAY â ${tgt} JSON)`},
+        {level:'high',title:'Cross-DB Type Incompatibility',desc:`${3+Math.floor(Math.random()*4)} column types require manual review (e.g., ${src} ARRAY → ${tgt} JSON)`},
         {level:'medium',title:'Large Table Performance',desc:'audit_log (12.4M rows) should use parallel extraction with 4+ threads'},
         {level:'medium',title:'Sequence/Auto-increment Migration',desc:`${src} sequences need to be mapped to ${tgt} identity columns`},
         {level:'low',title:'Index Recreation',desc:'All indexes can be recreated automatically on the target'},
@@ -579,7 +579,7 @@ const ReportSection = ({config,onGenerate}) => {
       {!report ? (
         <div style={{textAlign:'center',padding:'60px 0'}}>
           <button className="btn btn-primary" style={{fontSize:'1.1rem',padding:'14px 32px'}} onClick={generate}>
-            ð Generate Assessment Report
+            📊 Generate Assessment Report
           </button>
         </div>
       ) : (
@@ -597,7 +597,7 @@ const ReportSection = ({config,onGenerate}) => {
 
           <div className="grid-2" style={{marginBottom:20}}>
             <div className="card">
-              <h4 style={{fontWeight:700,marginBottom:12}}>ð Schema Analysis</h4>
+              <h4 style={{fontWeight:700,marginBottom:12}}>📋 Schema Analysis</h4>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,fontSize:'.88rem'}}>
                 <div><span style={{color:'var(--dim)'}}>Tables:</span> <strong>{report.schema.tables}</strong></div>
                 <div><span style={{color:'var(--dim)'}}>Columns:</span> <strong>{report.schema.columns}</strong></div>
@@ -606,7 +606,7 @@ const ReportSection = ({config,onGenerate}) => {
               </div>
             </div>
             <div className="card">
-              <h4 style={{fontWeight:700,marginBottom:12}}>â¡ Data Volume</h4>
+              <h4 style={{fontWeight:700,marginBottom:12}}>⚡ Data Volume</h4>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,fontSize:'.88rem'}}>
                 <div><span style={{color:'var(--dim)'}}>Total Rows:</span> <strong>{report.data.totalRows.toLocaleString()}</strong></div>
                 <div><span style={{color:'var(--dim)'}}>Total Size:</span> <strong>{report.data.totalSize}</strong></div>
@@ -617,17 +617,17 @@ const ReportSection = ({config,onGenerate}) => {
           </div>
 
           <div className="card" style={{marginBottom:20}}>
-            <h4 style={{fontWeight:700,marginBottom:12}}>â ï¸ Risk Assessment</h4>
+            <h4 style={{fontWeight:700,marginBottom:12}}>⚠️ Risk Assessment</h4>
             {report.risks.map((r,i)=>(
               <div key={i} className={`risk-${r.level}`} style={{padding:'12px 16px',borderRadius:8,marginBottom:8}}>
-                <div style={{fontWeight:700,fontSize:'.9rem'}}>{r.level==='high'?'ð´ HIGH':r.level==='medium'?'ð¡ MEDIUM':'ð¢ LOW'}: {r.title}</div>
+                <div style={{fontWeight:700,fontSize:'.9rem'}}>{r.level==='high'?'🔴 HIGH':r.level==='medium'?'🟡 MEDIUM':'🟢 LOW'}: {r.title}</div>
                 <div style={{fontSize:'.85rem',marginTop:4,opacity:.85}}>{r.desc}</div>
               </div>
             ))}
           </div>
 
           <div className="card">
-            <h4 style={{fontWeight:700,marginBottom:12}}>ð¡ AI Recommendations</h4>
+            <h4 style={{fontWeight:700,marginBottom:12}}>💡 AI Recommendations</h4>
             {report.recommendations.map((r,i)=>(
               <div key={i} style={{display:'flex',gap:10,padding:'8px 0',borderBottom:'1px solid var(--border)',fontSize:'.88rem',color:'var(--muted)'}}>
                 <span style={{color:'var(--cyan)',fontWeight:700,flexShrink:0}}>{i+1}.</span> {r}
@@ -636,7 +636,7 @@ const ReportSection = ({config,onGenerate}) => {
           </div>
 
           <div style={{textAlign:'center',marginTop:24}}>
-            <button className="btn btn-outline" onClick={()=>setReport(null)}>ð Regenerate</button>
+            <button className="btn btn-outline" onClick={()=>setReport(null)}>🔄 Regenerate</button>
           </div>
         </div>
       )}
@@ -644,7 +644,7 @@ const ReportSection = ({config,onGenerate}) => {
   );
 };
 
-// ââ MAIN APP ââ
+// ── MAIN APP ──
 const App = () => {
   const [section,setSection] = useState('home');
   const [config,setConfig] = useState({
@@ -666,7 +666,7 @@ const App = () => {
         {section==='report' && <ReportSection config={config}/>}
       </div>
       <footer style={{borderTop:'1px solid var(--border)',padding:'32px 0',textAlign:'center',color:'var(--dim)',fontSize:'.82rem'}}>
-        DB Migration Agent â AI-Powered Multi-Agent Database Migration
+        DB Migration Agent — AI-Powered Multi-Agent Database Migration
       </footer>
     </div>
   );
