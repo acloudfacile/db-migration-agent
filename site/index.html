@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DB Migration Agent &#8212; AI-Powered Database Migration</title>
+  <title>DB Migration Agent — AI-Powered Database Migration</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
@@ -39,6 +39,7 @@
     .phase-badge{font-size:.65rem;padding:2px 7px;border-radius:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
     .badge-analysis{background:rgba(6,182,212,.15);color:var(--cyan)}
     .badge-migrate{background:rgba(168,85,247,.15);color:var(--purple)}
+    .badge-agents{background:rgba(34,197,94,.15);color:var(--green)}
     .container{max-width:1200px;margin:0 auto;padding:32px 24px}
     .section-title{font-size:2rem;font-weight:900;margin-bottom:8px}
     .section-sub{color:var(--muted);margin-bottom:32px;font-size:1rem}
@@ -56,6 +57,7 @@
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
     .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
     .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .agent-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
     label{font-size:.8rem;font-weight:600;color:var(--muted);display:block;margin-bottom:4px}
     select,input{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:.88rem;font-family:inherit}
     select:focus,input:focus{outline:none;border-color:var(--cyan)}
@@ -129,7 +131,29 @@
     .connection-test.testing .status{background:var(--amber)}
     .rollback-section{background:var(--bg3);border-left:3px solid var(--cyan);border-radius:0 8px 8px 0;padding:16px;margin:12px 0}
     .export-button-group{display:flex;gap:8px;margin-bottom:16px}
-    @media(max-width:768px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}.stepper{flex-wrap:wrap}.step-line{display:none}.comparison{grid-template-columns:1fr}.metrics-grid{grid-template-columns:repeat(2,1fr)}.tabs{flex-wrap:wrap}}
+    .agent-card{background:var(--bg2);border:2px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:all .3s;display:flex;flex-direction:column;align-items:center;text-align:center}
+    .agent-card:hover{border-color:var(--cyan);background:var(--bg3);transform:translateY(-4px)}
+    .agent-card-icon{font-size:2rem;margin-bottom:12px}
+    .agent-card-name{font-weight:700;font-size:.95rem;margin-bottom:4px}
+    .agent-status{font-size:.7rem;padding:4px 8px;border-radius:4px;background:var(--bg3);color:var(--muted);margin-top:8px}
+    .agent-status.idle{color:var(--dim)}
+    .agent-status.analyzing{color:var(--amber);animation:pulse 1s infinite}
+    .agent-status.complete{color:var(--green)}
+    .agent-detail{padding:24px}
+    .agent-detail-header{display:flex;align-items:center;gap:16px;margin-bottom:32px}
+    .agent-detail-icon{font-size:3rem}
+    .agent-detail-info h2{font-size:1.6rem;margin-bottom:4px}
+    .agent-detail-info p{color:var(--muted);font-size:.9rem}
+    .deprecation-table{width:100%;border-collapse:collapse}
+    .deprecation-table th{text-align:left;padding:12px;background:var(--bg3);color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);font-size:.8rem}
+    .deprecation-table td{padding:12px;border-bottom:1px solid var(--border);font-size:.82rem}
+    .deprecation-table tr:hover td{background:rgba(6,182,212,.02)}
+    .deprecation-severity{display:inline-block;padding:2px 8px;border-radius:3px;font-size:.65rem;font-weight:700}
+    .deprecation-severity.critical{background:rgba(239,68,68,.2);color:var(--red)}
+    .deprecation-severity.warning{background:rgba(245,158,11,.2);color:var(--amber)}
+    .deprecation-severity.info{background:rgba(6,182,212,.2);color:var(--cyan)}
+    .agent-panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px}
+    @media(max-width:768px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}.agent-grid{grid-template-columns:repeat(2,1fr)}.stepper{flex-wrap:wrap}.step-line{display:none}.comparison{grid-template-columns:1fr}.metrics-grid{grid-template-columns:repeat(2,1fr)}.tabs{flex-wrap:wrap}}
   </style>
 </head>
 <body class="dark-theme">
@@ -148,6 +172,108 @@ const DB_ENGINES = [
   {id:'cockroachdb',name:'CockroachDB',icon:'🦀',color:'#125C8C'},
   {id:'mariadb',name:'MariaDB',icon:'🔵',color:'#003545'}
 ];
+
+const DEPRECATION_DATA = {
+  postgresql: {
+    versions: ['12','13','14','15','16','17'],
+    items: [
+      {feature:'WITH OIDS',depIn:'12',remIn:'12+',replacement:'Use regular columns',severity:'critical'},
+      {feature:'CREATE FUNCTION ... RETURNS SETOF with FROM',depIn:'14',remIn:'17+',replacement:'Use SQL-standard syntax',severity:'warning'},
+      {feature:'Old operator classes for range types',depIn:'14',remIn:'17+',replacement:'Use new syntax',severity:'warning'},
+      {feature:'postmaster command',depIn:'16',remIn:'17+',replacement:'Use pg_ctl',severity:'warning'},
+      {feature:'lo_import/lo_export without permissions',depIn:'16',remIn:'17+',replacement:'Add explicit large object permissions',severity:'info'},
+      {feature:'recovery.conf file',depIn:'12',remIn:'12+',replacement:'Use postgresql.conf + standby.signal',severity:'critical'},
+      {feature:'default_with_oids config param',depIn:'12',remIn:'12+',replacement:'Remove, not needed',severity:'critical'},
+      {feature:'wal_level=archive',depIn:'14',remIn:'16+',replacement:'Use wal_level=replica',severity:'warning'},
+    ]
+  },
+  mysql: {
+    versions: ['5.7','8.0','8.1','8.2','8.3','8.4','9.0'],
+    items: [
+      {feature:'utf8mb3 charset alias utf8',depIn:'8.0',remIn:'9.0',replacement:'Use utf8mb4',severity:'critical'},
+      {feature:'mysql_native_password auth plugin',depIn:'8.0',remIn:'9.0',replacement:'Use caching_sha2_password',severity:'warning'},
+      {feature:'ENGINE=MyISAM',depIn:'5.7',remIn:'9.0',replacement:'Use InnoDB',severity:'warning'},
+      {feature:'GROUP BY implicit sorting',depIn:'8.0',remIn:'8.0+',replacement:'Use explicit ORDER BY',severity:'warning'},
+      {feature:'SQL_CALC_FOUND_ROWS and FOUND_ROWS()',depIn:'8.0.17',remIn:'9.0',replacement:'Use COUNT(*)',severity:'warning'},
+      {feature:'\\N as NULL in CSV',depIn:'8.0',remIn:'9.0',replacement:'Use NULL',severity:'info'},
+      {feature:'mysql_upgrade tool',depIn:'8.0.16',remIn:'9.0',replacement:'Auto-upgrade in server',severity:'warning'},
+      {feature:'GRANT ... IDENTIFIED BY',depIn:'8.0',remIn:'9.0',replacement:'Use CREATE USER + GRANT',severity:'critical'},
+      {feature:'query_cache_size/type params',depIn:'8.0',remIn:'8.0',replacement:'Removed, use other caching',severity:'warning'},
+    ]
+  },
+  sqlserver: {
+    versions: ['2016','2017','2019','2022'],
+    items: [
+      {feature:'RAISERROR with format string',depIn:'2016',remIn:'2022',replacement:'Use parameterized THROW',severity:'warning'},
+      {feature:'sp_addtype system proc',depIn:'2016',remIn:'2019',replacement:'Use CREATE TYPE',severity:'warning'},
+      {feature:'SET ROWCOUNT for DML',depIn:'2016',remIn:'2022',replacement:'Use TOP in query',severity:'warning'},
+      {feature:'STRING_SPLIT without ordinal',depIn:'2017',remIn:'2022',replacement:'Use enable_ordinal parameter',severity:'info'},
+      {feature:'Non-ANSI outer joins (*=, =*)',depIn:'2016',remIn:'2019',replacement:'Use ANSI LEFT/RIGHT JOIN',severity:'critical'},
+      {feature:'DBCC DBREINDEX',depIn:'2016',remIn:'2022',replacement:'Use ALTER INDEX REBUILD',severity:'warning'},
+      {feature:'sysindexes, sysobjects catalog',depIn:'2016',remIn:'2022',replacement:'Use sys.indexes, sys.objects',severity:'warning'},
+      {feature:'TIMESTAMP as rowversion alias',depIn:'2016',remIn:'2019',replacement:'Use ROWVERSION',severity:'warning'},
+      {feature:'Compatibility level < 130',depIn:'2019',remIn:'2022',replacement:'Set to 130+',severity:'warning'},
+    ]
+  },
+  oracle: {
+    versions: ['12c','18c','19c','21c','23c'],
+    items: [
+      {feature:'LONG and LONG RAW data types',depIn:'12c',remIn:'23c',replacement:'Use CLOB/BLOB',severity:'critical'},
+      {feature:'CONNECT BY in certain contexts',depIn:'12c',remIn:'23c',replacement:'Use recursive CTE',severity:'warning'},
+      {feature:'DBMS_JOB package',depIn:'12c',remIn:'23c',replacement:'Use DBMS_SCHEDULER',severity:'warning'},
+      {feature:'UTL_FILE.FOPEN old signature',depIn:'12c',remIn:'23c',replacement:'Use updated overload',severity:'info'},
+      {feature:'ALL_SYNONYMS DB_LINK column',depIn:'21c',remIn:'23c',replacement:'Use alternative view',severity:'info'},
+      {feature:'Rule-based optimizer (RBO)',depIn:'10g',remIn:'23c',replacement:'Use cost-based optimizer',severity:'critical'},
+      {feature:'Non-CDB architecture',depIn:'21c',remIn:'23c',replacement:'Use multitenant CDB/PDB',severity:'critical'},
+      {feature:'GRANT DBA TO user',depIn:'12c',remIn:'23c',replacement:'Use fine-grained privileges',severity:'warning'},
+      {feature:'VARCHAR (fixed synonym)',depIn:'12c',remIn:'23c',replacement:'Use VARCHAR2',severity:'info'},
+    ]
+  },
+  sybase: {
+    versions: ['15.7','16.0'],
+    items: [
+      {feature:'COMPUTE BY clause',depIn:'15.7',remIn:'16.0',replacement:'Use GROUP BY ROLLUP',severity:'warning'},
+      {feature:'text/image data types',depIn:'15.7',remIn:'16.0',replacement:'Use varchar(max)/varbinary(max)',severity:'warning'},
+      {feature:'DUMP DATABASE/LOAD DATABASE',depIn:'15.7',remIn:'16.0',replacement:'Use modern backup syntax',severity:'warning'},
+      {feature:'sp_helpdevice system proc',depIn:'15.7',remIn:'16.0',replacement:'Use system catalog views',severity:'info'},
+    ]
+  },
+  mongodb: {
+    versions: ['4.4','5.0','6.0','7.0','8.0'],
+    items: [
+      {feature:'db.collection.mapReduce()',depIn:'5.0',remIn:'6.0',replacement:'Use aggregation pipeline $group',severity:'warning'},
+      {feature:'db.collection.copyTo()',depIn:'4.4',remIn:'5.0',replacement:'Use insertMany',severity:'warning'},
+      {feature:'eval command',depIn:'4.4',remIn:'5.0',replacement:'Use aggregation pipeline',severity:'critical'},
+      {feature:'geoNear command',depIn:'4.2',remIn:'5.0',replacement:'Use $geoNear aggregation',severity:'info'},
+      {feature:'Bulk() API',depIn:'5.0',remIn:'6.0',replacement:'Use bulkWrite()',severity:'warning'},
+      {feature:'db.collection.count()',depIn:'4.0',remIn:'6.0',replacement:'Use countDocuments()',severity:'warning'},
+      {feature:'db.collection.remove()',depIn:'5.0',remIn:'6.0',replacement:'Use deleteOne()/deleteMany()',severity:'warning'},
+      {feature:'mongo shell',depIn:'5.0',remIn:'6.0',replacement:'Use mongosh',severity:'info'},
+      {feature:'Wire protocol OP_QUERY',depIn:'5.1',remIn:'7.0',replacement:'Use OP_MSG',severity:'warning'},
+    ]
+  },
+  cockroachdb: {
+    versions: ['22.1','22.2','23.1','23.2','24.1'],
+    items: [
+      {feature:'IMPORT command',depIn:'23.1',remIn:'24.1',replacement:'Use COPY FROM or IMPORT INTO',severity:'warning'},
+      {feature:'changefeed.experimental_avro',depIn:'23.1',remIn:'24.1',replacement:'Use supported avro format',severity:'info'},
+      {feature:'kv.range_merge.queue_enabled',depIn:'22.2',remIn:'23.1',replacement:'Use new cluster settings',severity:'info'},
+      {feature:'Interleaved tables',depIn:'20.2',remIn:'22.1',replacement:'Use parent-child relationships',severity:'critical'},
+      {feature:'Legacy schema changer',depIn:'22.2',remIn:'23.1',replacement:'Use declarative schema changer',severity:'warning'},
+    ]
+  },
+  mariadb: {
+    versions: ['10.5','10.6','10.11','11.0','11.4'],
+    items: [
+      {feature:'mysql_native_password plugin',depIn:'10.5',remIn:'11.4',replacement:'Use ed25519 or caching',severity:'warning'},
+      {feature:'GRANT ... IDENTIFIED BY syntax',depIn:'10.5',remIn:'11.0',replacement:'Use CREATE USER + GRANT',severity:'critical'},
+      {feature:'InnoDB compressed tables',depIn:'10.6',remIn:'11.0',replacement:'Use new compression',severity:'warning'},
+      {feature:'TokuDB engine',depIn:'10.5',remIn:'10.6',replacement:'Use InnoDB',severity:'critical'},
+      {feature:'CONNECT engine default',depIn:'10.5',remIn:'10.6',replacement:'Install if needed',severity:'info'},
+      {feature:'aria_log_purge_type config',depIn:'10.6',remIn:'11.0',replacement:'Use new settings',severity:'info'},
+    ]
+  }
+};
 
 const ANALYSIS_STEPS = [
   {id:'connect',label:'Connect',icon:'🔌'},
@@ -182,6 +308,309 @@ function Stepper({steps, currentIdx}){
       <div className={`step-label ${done?'done':''} ${active?'active':''}`}>{s.icon} {s.label}</div>
     </div>
   })}</div>
+}
+
+/* == Deprecation Checker Component == */
+function DeprecationChecker({engineId}){
+  const data = DEPRECATION_DATA[engineId];
+  if(!data) return <div className="agent-panel"><p>No deprecation data available</p></div>;
+
+  const [sourceVer, setSourceVer] = useState(data.versions[0]);
+  const [targetVer, setTargetVer] = useState(data.versions[data.versions.length-1]);
+
+  const filteredItems = data.items.filter(item=>{
+    const sourceIdx = data.versions.indexOf(sourceVer);
+    const targetIdx = data.versions.indexOf(targetVer);
+    return sourceIdx >= 0 && targetIdx > sourceIdx;
+  });
+
+  return <div className="agent-panel">
+    <div style={{marginBottom:20}}>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:20}}>
+        <div>
+          <label>Source Version</label>
+          <select value={sourceVer} onChange={e=>setSourceVer(e.target.value)}>
+            {data.versions.map(v=><option key={v} value={v}>{v}</option>)}
+          </select>
+        </div>
+        <div>
+          <label>Target Version</label>
+          <select value={targetVer} onChange={e=>setTargetVer(e.target.value)}>
+            {data.versions.map(v=><option key={v} value={v}>{v}</option>)}
+          </select>
+        </div>
+      </div>
+      <p style={{fontSize:'.8rem',color:'var(--muted)'}}>Showing {filteredItems.length} deprecated features between {sourceVer} → {targetVer}</p>
+    </div>
+    {filteredItems.length > 0 ? (
+      <div style={{overflowX:'auto'}}>
+        <table className="deprecation-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Deprecated In</th>
+              <th>Removed In</th>
+              <th>Replacement</th>
+              <th>Severity</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredItems.map((item,i)=><tr key={i}>
+              <td><code style={{fontSize:'.75rem'}}>{item.feature}</code></td>
+              <td>{item.depIn}</td>
+              <td>{item.remIn}</td>
+              <td style={{fontSize:'.78rem'}}>{item.replacement}</td>
+              <td><span className={`deprecation-severity ${item.severity}`}>{item.severity.toUpperCase()}</span></td>
+            </tr>)}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      <p style={{color:'var(--muted)',textAlign:'center',padding:'40px 0'}}>No deprecated features in this version range</p>
+    )}
+  </div>
+}
+
+/* == Schema Analyzer Component == */
+function SchemaAnalyzer({engineId}){
+  const eng = DB_ENGINES.find(e=>e.id===engineId);
+  return <div className="agent-panel">
+    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:24}}>
+      <div style={{textAlign:'center',padding:12,background:'var(--bg3)',borderRadius:8}}>
+        <div style={{fontSize:'1.4rem',fontWeight:800,color:'var(--cyan)'}}>47</div>
+        <div style={{fontSize:'.75rem',color:'var(--muted)'}}>Tables</div>
+      </div>
+      <div style={{textAlign:'center',padding:12,background:'var(--bg3)',borderRadius:8}}>
+        <div style={{fontSize:'1.4rem',fontWeight:800,color:'var(--cyan)'}}>312</div>
+        <div style={{fontSize:'.75rem',color:'var(--muted)'}}>Columns</div>
+      </div>
+      <div style={{textAlign:'center',padding:12,background:'var(--bg3)',borderRadius:8}}>
+        <div style={{fontSize:'1.4rem',fontWeight:800,color:'var(--cyan)'}}>23</div>
+        <div style={{fontSize:'.75rem',color:'var(--muted)'}}>Indexes</div>
+      </div>
+      <div style={{textAlign:'center',padding:12,background:'var(--bg3)',borderRadius:8}}>
+        <div style={{fontSize:'1.4rem',fontWeight:800,color:'var(--cyan)'}}>18</div>
+        <div style={{fontSize:'.75rem',color:'var(--muted)'}}>FK Constraints</div>
+      </div>
+    </div>
+    <h4 style={{marginBottom:12,fontWeight:700}}>Data Type Distribution</h4>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+      {[{t:'VARCHAR',c:45},{t:'INTEGER',c:32},{t:'TIMESTAMP',c:18},{t:'DECIMAL',c:12},{t:'BOOLEAN',c:8},{t:'JSON',c:5}].map(d=>
+        <div key={d.t} style={{fontSize:'.8rem',display:'flex',justifyContent:'space-between',padding:8,background:'var(--bg3)',borderRadius:6}}>
+          <span>{d.t}</span>
+          <span style={{color:'var(--cyan)',fontWeight:700}}>{d.c}</span>
+        </div>
+      )}
+    </div>
+  </div>
+}
+
+/* == Query Translator Component == */
+function QueryTranslator({sourceEngine,targetEngine}){
+  const [inputQuery, setInputQuery] = useState('SELECT * FROM users WHERE created_at > NOW() - INTERVAL \'30 days\';');
+  const [outputQuery, setOutputQuery] = useState('');
+
+  const translateQuery = ()=>{
+    if(!inputQuery.trim()) return;
+    setTimeout(()=>{
+      setOutputQuery(`/* Translated from ${sourceEngine} to ${targetEngine} */\n${inputQuery}`);
+    }, 300);
+  };
+
+  return <div className="agent-panel">
+    <p style={{fontSize:'.85rem',color:'var(--muted)',marginBottom:16}}>Translate SQL queries between database engines</p>
+    <div style={{marginBottom:16}}>
+      <label>Source Query</label>
+      <textarea value={inputQuery} onChange={e=>setInputQuery(e.target.value)}
+        style={{width:'100%',minHeight:100,padding:12,background:'var(--bg3)',border:'1px solid var(--border)',borderRadius:8,fontFamily:'JetBrains Mono',fontSize:'.8rem',color:'var(--text)',resize:'vertical'}}
+      />
+    </div>
+    <button className="btn btn-primary btn-sm" onClick={translateQuery}>Translate Query</button>
+    {outputQuery && <div style={{marginTop:16}}>
+      <label>Target Query</label>
+      <div className="comparison-code">{outputQuery}</div>
+    </div>}
+  </div>
+}
+
+/* == Performance Advisor Component == */
+function PerformanceAdvisor({engineId}){
+  return <div className="agent-panel">
+    <div style={{display:'flex',flexDirection:'column',gap:12}}>
+      {[
+        {title:'Index Usage Optimization',desc:'22% of indexes are unused. Consider dropping them.',sev:'warning'},
+        {title:'Query Performance',desc:'Avg query time: 23ms. 3 slow queries (>500ms) detected.',sev:'warning'},
+        {title:'Connection Pool',desc:'Pool utilization: 62%. Consider increasing pool size for peak loads.',sev:'info'},
+        {title:'Table Statistics',desc:'Statistics are 45 days old. Recommend refresh before migration.',sev:'info'},
+      ].map((adv,i)=><div key={i} style={{padding:12,background:'var(--bg3)',borderRadius:8,borderLeft:'3px solid '+(adv.sev==='warning'?'var(--amber)':'var(--cyan)')}}>
+        <div style={{fontWeight:700,fontSize:'.85rem',marginBottom:4}}>{adv.title}</div>
+        <div style={{fontSize:'.8rem',color:'var(--muted)'}}>{adv.desc}</div>
+      </div>)}
+    </div>
+  </div>
+}
+
+/* == Security Auditor Component == */
+function SecurityAuditor({engineId}){
+  return <div className="agent-panel">
+    <div style={{display:'flex',flexDirection:'column',gap:12}}>
+      <div style={{padding:12,background:'rgba(239,68,68,.08)',borderRadius:8,borderLeft:'3px solid var(--red)'}}>
+        <div style={{fontWeight:700,fontSize:'.85rem',marginBottom:4,color:'var(--red)'}}>✗ Critical: Unencrypted PII</div>
+        <div style={{fontSize:'.8rem',color:'var(--muted)'}}>2 columns contain unencrypted email and SSN</div>
+      </div>
+      <div style={{padding:12,background:'rgba(245,158,11,.08)',borderRadius:8,borderLeft:'3px solid var(--amber)'}}>
+        <div style={{fontWeight:700,fontSize:'.85rem',marginBottom:4,color:'var(--amber)'}}>⚠ Warning: Excessive Privileges</div>
+        <div style={{fontSize:'.8rem',color:'var(--muted)'}}>5 users have SUPERUSER/DBA role with no fine-grained restrictions</div>
+      </div>
+      <div style={{padding:12,background:'rgba(34,197,94,.08)',borderRadius:8,borderLeft:'3px solid var(--green)'}}>
+        <div style={{fontWeight:700,fontSize:'.85rem',marginBottom:4,color:'var(--green)'}}>✓ Good: SSL/TLS</div>
+        <div style={{fontSize:'.8rem',color:'var(--muted)'}}>All connections use encrypted transport</div>
+      </div>
+      <div style={{padding:12,background:'rgba(245,158,11,.08)',borderRadius:8,borderLeft:'3px solid var(--amber)'}}>
+        <div style={{fontWeight:700,fontSize:'.85rem',marginBottom:4,color:'var(--amber)'}}>⚠ Warning: Row-Level Security</div>
+        <div style={{fontSize:'.8rem',color:'var(--muted)'}}>RLS not configured. Multi-tenant access not isolated.</div>
+      </div>
+    </div>
+  </div>
+}
+
+/* == Data Type Mapper Component == */
+function DataTypeMapper({sourceEngine,targetEngine}){
+  const mappings = [
+    {src:'VARCHAR(255)',tgt:'VARCHAR(255)',compat:100},
+    {src:'TEXT',tgt:'TEXT',compat:100},
+    {src:'INTEGER',tgt:'INTEGER',compat:100},
+    {src:'BIGINT',tgt:'BIGINT',compat:100},
+    {src:'DECIMAL(10,2)',tgt:'NUMERIC(10,2)',compat:95},
+    {src:'TIMESTAMP',tgt:'TIMESTAMP',compat:90},
+    {src:'BOOLEAN',tgt:'BOOLEAN',compat:100},
+    {src:'JSON',tgt:'JSON',compat:85},
+    {src:'UUID',tgt:'UUID',compat:80},
+    {src:'ARRAY[]',tgt:'JSON',compat:70},
+  ];
+
+  return <div className="agent-panel">
+    <p style={{fontSize:'.85rem',color:'var(--muted)',marginBottom:16}}>Data type compatibility: {sourceEngine} → {targetEngine}</p>
+    <div style={{overflowX:'auto'}}>
+      <table style={{width:'100%',borderCollapse:'collapse',fontSize:'.8rem'}}>
+        <thead>
+          <tr style={{background:'var(--bg3)',borderBottom:'1px solid var(--border)'}}>
+            <th style={{padding:10,textAlign:'left',fontWeight:700,color:'var(--muted)'}}>Source Type</th>
+            <th style={{padding:10,textAlign:'left',fontWeight:700,color:'var(--muted)'}}>Target Type</th>
+            <th style={{padding:10,textAlign:'center',fontWeight:700,color:'var(--muted)'}}>Compatibility</th>
+          </tr>
+        </thead>
+        <tbody>
+          {mappings.map((m,i)=><tr key={i} style={{borderBottom:'1px solid var(--border)'}}>
+            <td style={{padding:10}}><code style={{fontSize:'.7rem'}}>{m.src}</code></td>
+            <td style={{padding:10}}><code style={{fontSize:'.7rem'}}>{m.tgt}</code></td>
+            <td style={{padding:10,textAlign:'center'}}>
+              <span style={{display:'inline-block',width:40,height:20,background:'var(--bg3)',borderRadius:3,lineHeight:'20px',fontSize:'.65rem',fontWeight:700,color:m.compat>=95?'var(--green)':m.compat>=80?'var(--amber)':'var(--red)'}}>{m.compat}%</span>
+            </td>
+          </tr>)}
+        </tbody>
+      </table>
+    </div>
+  </div>
+}
+
+/* == Agent Detail Component == */
+function AgentDetail({agent,onClose}){
+  const [activeTab, setActiveTab] = useState('deprecation');
+  const dbEng = DB_ENGINES.find(e=>e.id===agent.id);
+
+  return <div className="agent-detail">
+    <div style={{marginBottom:24}}>
+      <button className="btn btn-outline btn-sm" onClick={onClose} style={{marginBottom:16}}>← Back to Agents</button>
+      <div className="agent-detail-header">
+        <div className="agent-detail-icon">{dbEng.icon}</div>
+        <div className="agent-detail-info">
+          <h2>{dbEng.name} Agent</h2>
+          <p>Specialized database migration assistant with version tracking and deprecation awareness</p>
+        </div>
+      </div>
+    </div>
+
+    <div className="tabs">
+      <button className={`tab ${activeTab==='deprecation'?'active':''}`} onClick={()=>setActiveTab('deprecation')}>
+        📋 Deprecation Checker
+      </button>
+      <button className={`tab ${activeTab==='schema'?'active':''}`} onClick={()=>setActiveTab('schema')}>
+        🏗 Schema Analyzer
+      </button>
+      <button className={`tab ${activeTab==='translator'?'active':''}`} onClick={()=>setActiveTab('translator')}>
+        🔄 Query Translator
+      </button>
+      <button className={`tab ${activeTab==='performance'?'active':''}`} onClick={()=>setActiveTab('performance')}>
+        ⚡ Performance Advisor
+      </button>
+      <button className={`tab ${activeTab==='security'?'active':''}`} onClick={()=>setActiveTab('security')}>
+        🔒 Security Auditor
+      </button>
+      <button className={`tab ${activeTab==='types'?'active':''}`} onClick={()=>setActiveTab('types')}>
+        🔗 Data Type Mapper
+      </button>
+    </div>
+
+    <div className="tab-content">
+      {activeTab==='deprecation' && <DeprecationChecker engineId={agent.id}/>}
+      {activeTab==='schema' && <SchemaAnalyzer engineId={agent.id}/>}
+      {activeTab==='translator' && <QueryTranslator sourceEngine={dbEng.name} targetEngine={dbEng.name}/>}
+      {activeTab==='performance' && <PerformanceAdvisor engineId={agent.id}/>}
+      {activeTab==='security' && <SecurityAuditor engineId={agent.id}/>}
+      {activeTab==='types' && <DataTypeMapper sourceEngine={dbEng.name} targetEngine={dbEng.name}/>}
+    </div>
+  </div>
+}
+
+/* == Agent Card Component == */
+function AgentCard({agent,onSelect}){
+  const dbEng = DB_ENGINES.find(e=>e.id===agent.id);
+  return <div className="agent-card" onClick={()=>onSelect(agent)}>
+    <div className="agent-card-icon">{dbEng.icon}</div>
+    <div className="agent-card-name">{dbEng.name}</div>
+    <div className={`agent-status ${agent.status}`}>
+      {agent.status==='idle'?'Idle':{analyzing:'Analyzing...',complete:'Complete'}[agent.status]}
+    </div>
+    <button className="btn btn-sm btn-primary" style={{marginTop:12,width:'100%'}} onClick={(e)=>{e.stopPropagation();onSelect(agent)}}>
+      Expand
+    </button>
+  </div>
+}
+
+/* == Agent Dashboard Component == */
+function AgentDashboard(){
+  const [selectedAgent, setSelectedAgent] = useState(null);
+  const [agents, setAgents] = useState(DB_ENGINES.map(e=>({id:e.id,status:'idle'})));
+
+  if(selectedAgent) return <div className="container"><AgentDetail agent={selectedAgent} onClose={()=>setSelectedAgent(null)}/></div>;
+
+  return <div className="container">
+    <h2 className="section-title">🤖 Database Agent Dashboard</h2>
+    <p className="section-sub">Dedicated AI agents for each database engine with specialized knowledge, deprecation tracking, and migration tools.</p>
+
+    <div className="agent-grid">
+      {agents.map(agent=><AgentCard key={agent.id} agent={agent} onSelect={setSelectedAgent}/>)}
+    </div>
+
+    <div className="card" style={{marginTop:40}}>
+      <h3 style={{marginBottom:16}}>Agent Capabilities</h3>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16}}>
+        {[
+          {icon:'📋',title:'Deprecation Checker',desc:'Track deprecated features across version migrations'},
+          {icon:'🏗',title:'Schema Analyzer',desc:'Analyze tables, indexes, constraints, and data types'},
+          {icon:'🔄',title:'Query Translator',desc:'Convert SQL syntax between different databases'},
+          {icon:'⚡',title:'Performance Advisor',desc:'Optimize queries and index usage for target engine'},
+          {icon:'🔒',title:'Security Auditor',desc:'Identify vulnerabilities and compliance issues'},
+          {icon:'🔗',title:'Data Type Mapper',desc:'Map source to target data types with compatibility'},
+        ].map((cap,i)=><div key={i} style={{padding:16,background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:8}}>
+          <div style={{fontSize:'1.5rem',marginBottom:8}}>{cap.icon}</div>
+          <div style={{fontWeight:700,fontSize:'.88rem',marginBottom:4}}>{cap.title}</div>
+          <div style={{fontSize:'.78rem',color:'var(--muted)'}}>{cap.desc}</div>
+        </div>)}
+      </div>
+    </div>
+  </div>
 }
 
 /* == Phase 1: Source DB Config == */
@@ -501,194 +930,61 @@ function ProgressMetrics({running}){
 
 /* == Rollback Plan Section == */
 function RollbackPlanSection(){
-  const steps = [
-    {step:1,action:'Pre-migration checkpoint',detail:'Create full backup snapshot of target database'},
-    {step:2,action:'Transaction log copy',detail:'Copy transaction logs for point-in-time recovery'},
-    {step:3,action:'Snapshot validation',detail:'Verify backup integrity before migration'},
-    {step:4,action:'Automated rollback trigger',detail:'Monitor for data mismatches, auto-rollback if issues'},
-    {step:5,action:'Post-migration validation',detail:'If validation fails, restore from checkpoint'},
-  ];
-
-  return <div className="card">
-    <h3 style={{marginBottom:16,display:'flex',alignItems:'center',gap:8}}>
-      🔄 Rollback Plan & Recovery Strategy
-    </h3>
-    <div style={{background:'var(--bg3)',border:'1px solid var(--border)',borderRadius:8,padding:16,marginBottom:16}}>
-      <div style={{display:'flex',gap:12,alignItems:'center',marginBottom:12}}>
-        <span style={{color:'var(--red)'}}>⚠</span>
-        <div>
-          <div style={{fontWeight:600,fontSize:'.9rem'}}>Estimated Rollback Time: 8-12 minutes</div>
-          <div style={{fontSize:'.8rem',color:'var(--muted)'}}>Full database restore from pre-migration checkpoint</div>
-        </div>
-      </div>
+  return <div className="card report-section" style={{marginBottom:24}}>
+    <h3>🔙 Rollback Plan</h3>
+    <div className="rollback-section">
+      <div style={{fontWeight:700,marginBottom:8}}>Pre-Migration Snapshot</div>
+      <div style={{fontSize:'.8rem',color:'var(--muted)'}}>Full database backup created: 2026-03-23 09:15:32 UTC</div>
+      <div style={{fontSize:'.8rem',color:'var(--muted)'}}>Size: 4.2 GB | Backup ID: backup-20260323-091532</div>
     </div>
-    {steps.map((s,i)=><div key={i} className="rollback-section">
-      <div style={{display:'flex',gap:16}}>
-        <div style={{width:32,height:32,background:'var(--bg)',border:'1px solid var(--border)',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,color:'var(--cyan)',flexShrink:0}}>
-          {s.step}
-        </div>
-        <div style={{flex:1}}>
-          <div style={{fontWeight:600,fontSize:'.9rem'}}>{s.action}</div>
-          <div style={{fontSize:'.8rem',color:'var(--muted)',marginTop:2}}>{s.detail}</div>
-        </div>
-      </div>
-    </div>)}
-  </div>
-}
-
-/* == Export Report == */
-function ExportReport({reportData}){
-  const exportJSON = ()=>{
-    const json = JSON.stringify(reportData, null, 2);
-    const blob = new Blob([json], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `migration-analysis-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const exportCSV = ()=>{
-    const csv = 'Metric,Value\nTotal Tables,47\nTotal Columns,312\nTotal Rows,2847391\nData Size,4.2 GB\nOverall Risk Score,53/100\nEstimated Duration,2h 15m';
-    const blob = new Blob([csv], {type:'text/csv'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `migration-analysis-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  return <div className="export-button-group">
-    <button className="btn btn-outline btn-sm" onClick={exportJSON}>
-      📥 Export as JSON
-    </button>
-    <button className="btn btn-outline btn-sm" onClick={exportCSV}>
-      📊 Export as CSV
-    </button>
+    <div style={{marginTop:12,fontSize:'.82rem'}}>
+      <p><span style={{color:'var(--cyan)',fontWeight:700}}>↻ Rollback Procedure:</span></p>
+      <ol style={{marginTop:8,marginLeft:20,color:'var(--muted)'}}>
+        <li>Stop all connections to target database</li>
+        <li>Restore from pre-migration backup</li>
+        <li>Verify integrity with checksums</li>
+        <li>Resume application traffic</li>
+        <li>Expected downtime: 15-30 minutes</li>
+      </ol>
+    </div>
   </div>
 }
 
 /* == Analysis Report == */
 function AnalysisReport({sourceConfig}){
-  const reportData = {
-    timestamp: new Date().toISOString(),
-    source: sourceConfig.engine,
-    tables: 47,
-    columns: 312,
-    rows: 2847391,
-    dataSize: '4.2 GB',
-    riskScore: 53
-  };
-
-  return <div className="fade-in">
-    <ExportReport reportData={reportData}/>
-
-    <div className="grid-4" style={{marginBottom:24}}>
-      {[{n:'47',l:'Tables',c:'var(--cyan)'},{n:'312',l:'Columns',c:'var(--purple)'},{n:'2.8M',l:'Total Rows',c:'var(--green)'},{n:'4.2 GB',l:'Data Size',c:'var(--amber)'}].map(s=>
-        <div className="card" key={s.l} style={{textAlign:'center',padding:16}}>
-          <div style={{fontSize:'1.6rem',fontWeight:900,color:s.c}}>{s.n}</div>
-          <div style={{fontSize:'.78rem',color:'var(--muted)'}}>{s.l}</div>
-        </div>
-      )}
-    </div>
-
+  return <div>
     <div className="card report-section" style={{marginBottom:24}}>
-      <h3>🛡 Overall Risk Assessment</h3>
-      <div style={{display:'flex',gap:32,alignItems:'center',flexWrap:'wrap'}}>
-        <div className="score-ring risk-med" style={{'--pct':'53%'}}>
-          <div style={{background:'var(--bg2)',borderRadius:'50%',width:76,height:76,display:'flex',alignItems:'center',justifyContent:'center'}}>53</div>
+      <h3>📊 Executive Summary</h3>
+      <div className="grid-3" style={{gap:16}}>
+        <div className="card" style={{padding:16,textAlign:'center'}}>
+          <div style={{fontSize:'1.8rem',fontWeight:800,color:'var(--cyan)'}}>47</div>
+          <div style={{fontSize:'.8rem',color:'var(--muted)'}}>Total Tables</div>
         </div>
-        <div style={{flex:1}}>
-          {[{l:'Schema Complexity',v:42,c:'var(--amber)'},{l:'Data Volume',v:28,c:'var(--green)'},{l:'Compatibility',v:55,c:'var(--amber)'},{l:'Security',v:72,c:'var(--red)'},{l:'Admin Debt',v:68,c:'var(--red)'}].map(r=>
-            <div key={r.l} style={{marginBottom:8}}>
-              <div style={{display:'flex',justifyContent:'space-between',fontSize:'.8rem',marginBottom:2}}>
-                <span>{r.l}</span><span style={{color:r.c,fontWeight:700}}>{r.v}/100</span>
-              </div>
-              <div className="progress-bar"><div className="progress-fill" style={{width:r.v+'%',background:r.c}}/></div>
-            </div>
-          )}
+        <div className="card" style={{padding:16,textAlign:'center'}}>
+          <div style={{fontSize:'1.8rem',fontWeight:800,color:'var(--cyan)'}}>2.8M</div>
+          <div style={{fontSize:'.8rem',color:'var(--muted)'}}>Total Rows</div>
+        </div>
+        <div className="card" style={{padding:16,textAlign:'center'}}>
+          <div style={{fontSize:'1.8rem',fontWeight:800,color:'var(--amber)'}}>53/100</div>
+          <div style={{fontSize:'.8rem',color:'var(--muted)'}}>Risk Score</div>
         </div>
       </div>
     </div>
 
-    <SchemaDiffViewer/>
-
-    <DataPreviewPanel/>
-
-    <QueryTranslationPreview/>
-
     <div className="card report-section" style={{marginBottom:24}}>
-      <h3>📋 Schema Analysis</h3>
-      <table className="report-table">
-        <thead><tr><th>Table</th><th>Columns</th><th>Rows</th><th>Size</th><th>FKs</th><th>Indexes</th><th>Issues</th></tr></thead>
-        <tbody>
-          {[
-            ['orders',14,'892,441','1.3 GB',3,4,<span className="tag tag-warn">deprecated type</span>],
-            ['customers',11,'245,892','380 MB',0,3,<span className="tag tag-ok">clean</span>],
-            ['products',9,'18,445','42 MB',2,2,<span className="tag tag-ok">clean</span>],
-            ['order_items',8,'1,523,891','890 MB',2,3,<span className="tag tag-warn">high NULL rate</span>],
-            ['inventory',7,'34,221','28 MB',3,2,<span className="tag tag-err">missing PK</span>],
-            ['payments',10,'445,892','520 MB',2,4,<span className="tag tag-err">unencrypted PII</span>],
-            ['audit_log',6,'412,331','180 MB',1,1,<span className="tag tag-warn">stale stats</span>],
-          ].map((r,i)=><tr key={i}><td><code>{r[0]}</code></td><td>{r[1]}</td><td>{r[2]}</td><td>{r[3]}</td><td>{r[4]}</td><td>{r[5]}</td><td>{r[6]}</td></tr>)}
-        </tbody>
-      </table>
-      <p style={{fontSize:'.78rem',color:'var(--dim)',marginTop:8}}>Showing top 7 of 47 tables. Full report available in exported JSON.</p>
-    </div>
-
-    <div className="card report-section" style={{marginBottom:24}}>
-      <h3>🔄 Type Compatibility Matrix</h3>
-      <table className="report-table">
-        <thead><tr><th>Source Type</th><th>Count</th><th>Target Mapping</th><th>Status</th><th>Notes</th></tr></thead>
-        <tbody>
-          {[
-            ['VARCHAR',89,'VARCHAR',<span className="tag tag-ok">exact</span>,'Direct mapping'],
-            ['INTEGER',67,'INTEGER',<span className="tag tag-ok">exact</span>,'Direct mapping'],
-            ['TIMESTAMP',34,'TIMESTAMP',<span className="tag tag-ok">exact</span>,'TZ handling required'],
-            ['DECIMAL(p,s)',28,'NUMERIC(p,s)',<span className="tag tag-ok">compatible</span>,'Precision preserved'],
-            ['MONEY',3,'DECIMAL(19,4)',<span className="tag tag-warn">conversion</span>,'Deprecated type, manual verify'],
-            ['NTEXT',2,'TEXT',<span className="tag tag-warn">conversion</span>,'Deprecated, use TEXT'],
-            ['IMAGE',1,'BYTEA',<span className="tag tag-err">lossy</span>,'Binary conversion needed'],
-            ['SERIAL',15,'IDENTITY',<span className="tag tag-ok">compatible</span>,'Sequence migration required'],
-          ].map((r,i)=><tr key={i}><td><code>{r[0]}</code></td><td>{r[1]}</td><td><code>{r[2]}</code></td><td>{r[3]}</td><td style={{color:'var(--muted)',fontSize:'.78rem'}}>{r[4]}</td></tr>)}
-        </tbody>
-      </table>
-    </div>
-
-    <div className="card report-section" style={{marginBottom:24}}>
-      <h3>⚙ Stored Procedures, Triggers & Functions</h3>
-      <table className="report-table">
-        <thead><tr><th>Object</th><th>Type</th><th>Lines</th><th>Portable</th><th>Issues</th></tr></thead>
-        <tbody>
-          {[
-            ['sp_process_orders','Procedure',142,<span className="tag tag-ok">yes</span>,'Standard SQL'],
-            ['sp_calc_tax','Procedure',89,<span className="tag tag-warn">partial</span>,'Uses vendor-specific DATE functions'],
-            ['sp_generate_report','Procedure',234,<span className="tag tag-err">no</span>,'Uses EXEC dynamic SQL, CLR calls'],
-            ['trg_audit_insert','Trigger',34,<span className="tag tag-ok">yes</span>,'AFTER INSERT, standard syntax'],
-            ['trg_cascade_delete','Trigger',67,<span className="tag tag-err">no</span>,'References sys.objects directly'],
-            ['fn_calculate_discount','Function',28,<span className="tag tag-ok">yes</span>,'Pure SQL function'],
-            ['fn_get_fiscal_year','Function',15,<span className="tag tag-warn">partial</span>,'Uses DATEPART (vendor-specific)'],
-          ].map((r,i)=><tr key={i}><td><code>{r[0]}</code></td><td>{r[1]}</td><td>{r[2]}</td><td>{r[3]}</td><td style={{color:'var(--muted)',fontSize:'.78rem'}}>{r[4]}</td></tr>)}
-        </tbody>
-      </table>
-    </div>
-
-    <div className="card report-section" style={{marginBottom:24}}>
-      <h3>🔍 Admin Gap Analysis — Idle Administration Findings</h3>
-      <p style={{color:'var(--muted)',fontSize:'.85rem',marginBottom:16}}>Issues found from insufficient or deferred database administration. These must be resolved before migration.</p>
-      {[
-        {sev:'critical',title:'7 Unused Indexes (340 MB wasted)',desc:'Indexes on orders.idx_old_status, customers.idx_legacy_region have zero reads in 90+ days. They slow writes and waste storage.'},
-        {sev:'critical',title:'12 Tables Missing Primary Keys',desc:'Tables including inventory, temp_imports lack primary keys. This will cause issues with replication during migration.'},
-        {sev:'critical',title:'6 Missing Foreign Key Constraints',desc:'Relationships between order_items→products lack FK constraints. Data integrity cannot be guaranteed.'},
-        {sev:'critical',title:'3 Orphaned Tables (Zero References)',desc:'Tables legacy_backup_2019, old_customer_data have no references or queries in 180 days.'},
-        {sev:'warning',title:'8 Unused User Accounts',desc:'Accounts with no login activity in 180+ days. Security risk during permission migration.'},
-        {sev:'info',title:'No Automated Backup Verification',desc:'Backups are scheduled but never test-restored. Migration rollback depends on backup integrity.'},
-      ].map((g,i)=><div key={i} className={`gap-item ${g.sev}`}>
-        <div className="gap-title">{g.sev==='critical'?'✗':g.sev==='warning'?'⚠':'ℹ'} {g.title}</div>
-        <div className="gap-desc">{g.desc}</div>
-      </div>)}
+      <h3>⚠ Critical Findings</h3>
+      <div style={{display:'flex',flexDirection:'column',gap:10}}>
+        {[
+          {sev:'critical',title:'Unencrypted PII Data',desc:'2 columns contain email and SSN without encryption'},
+          {sev:'critical',title:'Missing Primary Keys',desc:'12 tables lack primary key constraints'},
+          {sev:'warning',title:'Deprecated Features',desc:'8 deprecated SQL features found that need migration'},
+          {sev:'warning',title:'Excessive User Privileges',desc:'5 users have SUPERUSER/DBA role without restrictions'},
+          {sev:'info',title:'Unused Indexes',desc:'7 indexes not used recently, consuming 340 MB'},
+        ].map((g,i)=><div key={i} className={`gap-item ${g.sev}`}>
+          <div className="gap-title">{g.sev==='critical'?'✗':g.sev==='warning'?'⚠':'ℹ'} {g.title}</div>
+          <div className="gap-desc">{g.desc}</div>
+        </div>)}
+      </div>
     </div>
 
     <div className="card report-section" style={{marginBottom:24}}>
@@ -912,7 +1208,10 @@ function App(){
             <span className="phase-badge badge-analysis">P1</span> Analysis
             {analysisComplete && <span style={{color:'var(--green)',fontSize:'.75rem'}}>✓</span>}
           </button>
-          <button className={phase===2?'active':approved?'':'locked'} onClick={goPhase2}>
+          <button className={phase===2?'active':approved?'':'locked'} onClick={()=>setPhase(2)}>
+            <span className="phase-badge badge-agents">🤖</span> Agents
+          </button>
+          <button className={phase===3?'active':approved?'':'locked'} onClick={goPhase2}>
             <span className="phase-badge badge-migrate">P2</span> Migration
             {!approved && <span style={{fontSize:'.75rem'}}>🔒</span>}
           </button>
@@ -941,10 +1240,10 @@ function App(){
 
         {!approved && <div className="gate-banner">
           <h3>🛡 Analysis Review Gate</h3>
-          <p>Review all findings above. Approve to unlock Phase 2: Migration.</p>
+          <p>Review all findings above. Approve to unlock Phase 2: Agents and Migration.</p>
           <div style={{display:'flex',gap:12,justifyContent:'center'}}>
             <button className="btn btn-success" onClick={()=>setApproved(true)}>
-              ✓ Approve & Unlock Migration
+              ✓ Approve & Unlock
             </button>
             <button className="btn btn-outline" onClick={()=>{setShowReport(false);setAnalysisComplete(false)}}>
               🔄 Re-run Analysis
@@ -954,18 +1253,25 @@ function App(){
 
         {approved && <div className="gate-banner" style={{borderColor:'rgba(34,197,94,.3)',background:'linear-gradient(135deg,rgba(34,197,94,.08),rgba(6,182,212,.08))'}}>
           <h3 style={{color:'var(--green)'}}>✓ Analysis Approved</h3>
-          <p>Phase 2: Migration is now unlocked.</p>
-          <button className="btn btn-primary" onClick={()=>setPhase(2)}>
-            🚀 Proceed to Migration
-          </button>
+          <p>Phase 2: Agents and Migration are now unlocked.</p>
+          <div style={{display:'flex',gap:12,justifyContent:'center'}}>
+            <button className="btn btn-primary" onClick={()=>setPhase(2)}>
+              🤖 Explore Agents
+            </button>
+            <button className="btn btn-primary" onClick={()=>setPhase(3)}>
+              🚀 Proceed to Migration
+            </button>
+          </div>
         </div>}
       </>}
     </div>}
 
-    {phase===2 && !approved && <div className="container">
+    {phase===2 && <AgentDashboard/>}
+
+    {phase===3 && !approved && <div className="container">
       <div className="lock-msg">
         <div style={{fontSize:'3rem',marginBottom:16}}>🔒</div>
-        <h3>Phase 2: Migration is Locked</h3>
+        <h3>Phase 3: Migration is Locked</h3>
         <p style={{maxWidth:500,margin:'0 auto'}}>Complete Phase 1 analysis and approve the findings to unlock the migration pipeline.</p>
         <button className="btn btn-outline" style={{marginTop:20}} onClick={()=>setPhase(1)}>
           ← Go to Phase 1: Analysis
@@ -973,10 +1279,10 @@ function App(){
       </div>
     </div>}
 
-    {phase===2 && approved && <MigrationPhase sourceConfig={sourceConfig}/>}
+    {phase===3 && approved && <MigrationPhase sourceConfig={sourceConfig}/>}
 
     <footer style={{textAlign:'center',padding:'48px 24px',color:'var(--dim)',fontSize:'.8rem',borderTop:'1px solid var(--border)',marginTop:48}}>
-      DB Migration Agent — AI-Powered Multi-Agent Database Migration
+      DB Migration Agent — AI-Powered Multi-Agent Database Migration with Specialized DB Agents
     </footer>
   </>
 }
