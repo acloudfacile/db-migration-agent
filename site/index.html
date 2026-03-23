@@ -13,6 +13,8 @@
     :root{--bg:#0a0e1a;--bg2:#111827;--bg3:#1a2332;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--dim:#64748b;--cyan:#06b6d4;--purple:#a855f7;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--grad:linear-gradient(135deg,#06b6d4,#a855f7)}
     html{scroll-behavior:smooth}
     body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+    body.dark-theme{--bg:#0a0e1a;--bg2:#111827;--bg3:#1a2332;--border:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--dim:#64748b}
+    body.light-theme{--bg:#f5f5f5;--bg2:#ffffff;--bg3:#e8e8e8;--border:#e0e0e0;--text:#1a1a1a;--muted:#666;--dim:#999}
     code{font-family:'JetBrains Mono',monospace}
     a{color:var(--cyan);text-decoration:none}
     ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--dim);border-radius:3px}
@@ -20,10 +22,16 @@
     @keyframes spin{to{transform:rotate(360deg)}}
     @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
     @keyframes slideRight{from{width:0}to{width:100%}}
+    @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
     .fade-in{animation:fadeIn .5s ease both}
     nav{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;height:56px}
+    body.light-theme nav{background:rgba(245,245,245,.92)}
     .nav-brand{font-weight:800;font-size:1.05rem;display:flex;align-items:center;gap:8px;margin-right:32px;white-space:nowrap}
-    .nav-phase{display:flex;gap:4px;margin-left:auto}
+    .nav-spacer{flex:1}
+    .nav-controls{display:flex;gap:12px;align-items:center}
+    .theme-toggle{background:transparent;border:1px solid var(--border);color:var(--text);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .theme-toggle:hover{border-color:var(--cyan);color:var(--cyan)}
+    .nav-phase{display:flex;gap:4px}
     .nav-phase button{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 18px;border-radius:8px;cursor:pointer;font-size:.82rem;font-weight:600;transition:all .2s;font-family:inherit;display:flex;align-items:center;gap:6px}
     .nav-phase button.active{background:var(--bg3);color:var(--cyan);border-color:var(--cyan)}
     .nav-phase button.locked{opacity:.45;cursor:not-allowed}
@@ -44,6 +52,7 @@
     .btn-success{background:var(--green);color:#fff}
     .btn-success:hover{opacity:.9}
     .btn-danger{background:var(--red);color:#fff}
+    .btn-sm{padding:8px 16px;font-size:.8rem}
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
     .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
     .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
@@ -89,43 +98,76 @@
     .gate-banner h3{font-size:1.3rem;font-weight:800;margin-bottom:8px}
     .gate-banner p{color:var(--muted);margin-bottom:20px}
     .lock-msg{text-align:center;padding:80px 24px;color:var(--dim)}
-    .lock-msg h3{font-size:1.4rem;margin-bottom:8px}
-    @media(max-width:768px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}.stepper{flex-wrap:wrap}.step-line{display:none}}
+    .lock-msg h3{font-size:1.4rem;margin-bottom:8px;color:var(--muted)}
+    .tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:24px}
+    .tab{padding:12px 24px;background:transparent;border:none;color:var(--muted);cursor:pointer;font-weight:600;font-size:.88rem;border-bottom:2px solid transparent;transition:all .2s;font-family:inherit}
+    .tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+    .tab:hover{color:var(--text)}
+    .tab-content{animation:slideDown .3s ease}
+    .comparison{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+    .comparison-panel{border:1px solid var(--border);border-radius:8px;padding:16px;background:var(--bg3)}
+    .comparison-panel h4{font-size:.85rem;font-weight:700;color:var(--cyan);margin-bottom:12px}
+    .comparison-code{background:#0d1117;border:1px solid var(--border);border-radius:6px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:.75rem;overflow-x:auto;max-height:300px;overflow-y:auto}
+    .timeline{position:relative;padding:24px 0}
+    .timeline-item{display:flex;gap:24px;margin-bottom:32px;position:relative}
+    .timeline-item:not(:last-child)::before{content:'';position:absolute;left:20px;top:60px;width:2px;height:calc(100% + 8px);background:var(--border)}
+    .timeline-dot{width:40px;height:40px;border-radius:50%;background:var(--bg3);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1;font-size:1.2rem}
+    .timeline-dot.success{background:rgba(34,197,94,.2);border-color:var(--green)}
+    .timeline-dot.pending{background:rgba(245,158,11,.2);border-color:var(--amber);animation:pulse 2s infinite}
+    .timeline-content{flex:1;padding-top:4px}
+    .timeline-title{font-weight:700;color:var(--text);margin-bottom:4px;font-size:.9rem}
+    .timeline-time{font-size:.75rem;color:var(--muted)}
+    .metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+    .metric-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center}
+    .metric-value{font-size:1.4rem;font-weight:800;color:var(--cyan)}
+    .metric-label{font-size:.75rem;color:var(--muted);margin-top:4px}
+    .metric-unit{font-size:.7rem;color:var(--dim)}
+    .connection-test{display:flex;gap:12px;align-items:center;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px}
+    .connection-test .status{width:10px;height:10px;border-radius:50%;animation:pulse .4s infinite}
+    .connection-test.success .status{background:var(--green);animation:none}
+    .connection-test.error .status{background:var(--red);animation:none}
+    .connection-test.testing .status{background:var(--amber)}
+    .rollback-section{background:var(--bg3);border-left:3px solid var(--cyan);border-radius:0 8px 8px 0;padding:16px;margin:12px 0}
+    .export-button-group{display:flex;gap:8px;margin-bottom:16px}
+    @media(max-width:768px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}.stepper{flex-wrap:wrap}.step-line{display:none}.comparison{grid-template-columns:1fr}.metrics-grid{grid-template-columns:repeat(2,1fr)}.tabs{flex-wrap:wrap}}
   </style>
 </head>
-<body>
+<body class="dark-theme">
 <div id="root"></div>
 <script type="text/babel">
 const {useState,useEffect,useRef,useCallback} = React;
 
 /* == Data == */
 const DB_ENGINES = [
-  {id:'postgresql',name:'PostgreSQL',icon:'\u{1F418}',color:'#336791'},
-  {id:'mysql',name:'MySQL',icon:'\u{1F42C}',color:'#4479A1'},
-  {id:'sqlserver',name:'SQL Server',icon:'\u{1F4BE}',color:'#CC2927'},
-  {id:'oracle',name:'Oracle',icon:'\u{1F534}',color:'#F80000'},
-  {id:'sybase',name:'Sybase ASE',icon:'\u{1F7E2}',color:'#6DB33F'}
+  {id:'postgresql',name:'PostgreSQL',icon:'🐘',color:'#336791'},
+  {id:'mysql',name:'MySQL',icon:'🐬',color:'#4479A1'},
+  {id:'sqlserver',name:'SQL Server',icon:'💾',color:'#CC2927'},
+  {id:'oracle',name:'Oracle',icon:'🔴',color:'#F80000'},
+  {id:'sybase',name:'Sybase ASE',icon:'🟢',color:'#6DB33F'},
+  {id:'mongodb',name:'MongoDB',icon:'🍃',color:'#13AA52'},
+  {id:'cockroachdb',name:'CockroachDB',icon:'🦀',color:'#125C8C'},
+  {id:'mariadb',name:'MariaDB',icon:'🔵',color:'#003545'}
 ];
 
 const ANALYSIS_STEPS = [
-  {id:'connect',label:'Connect',icon:'\u{1F50C}'},
-  {id:'schema',label:'Schema',icon:'\u{1F4CB}'},
-  {id:'data',label:'Data Profile',icon:'\u{1F4CA}'},
-  {id:'deps',label:'Dependencies',icon:'\u{1F517}'},
-  {id:'procs',label:'Procedures',icon:'\u{2699}'},
-  {id:'perf',label:'Performance',icon:'\u{26A1}'},
-  {id:'security',label:'Security',icon:'\u{1F512}'},
-  {id:'gaps',label:'Admin Gaps',icon:'\u{1F50D}'},
-  {id:'risk',label:'Risk Score',icon:'\u{1F6E1}'},
-  {id:'report',label:'Report',icon:'\u{1F4DD}'}
+  {id:'connect',label:'Connect',icon:'🔌'},
+  {id:'schema',label:'Schema',icon:'📋'},
+  {id:'data',label:'Data Profile',icon:'📊'},
+  {id:'deps',label:'Dependencies',icon:'🔗'},
+  {id:'procs',label:'Procedures',icon:'⚙'},
+  {id:'perf',label:'Performance',icon:'⚡'},
+  {id:'security',label:'Security',icon:'🔒'},
+  {id:'gaps',label:'Admin Gaps',icon:'🔍'},
+  {id:'risk',label:'Risk Score',icon:'🛡'},
+  {id:'report',label:'Report',icon:'📝'}
 ];
 
 const MIGRATION_STEPS = [
-  {id:'config',label:'Configure',icon:'\u{2699}'},
-  {id:'schema_gen',label:'Schema Gen',icon:'\u{1F4CB}'},
-  {id:'data_load',label:'Data Load',icon:'\u{26A1}'},
-  {id:'validate',label:'Validate',icon:'\u{2705}'},
-  {id:'complete',label:'Complete',icon:'\u{1F389}'}
+  {id:'config',label:'Configure',icon:'⚙'},
+  {id:'schema_gen',label:'Schema Gen',icon:'📋'},
+  {id:'data_load',label:'Data Load',icon:'⚡'},
+  {id:'validate',label:'Validate',icon:'✅'},
+  {id:'complete',label:'Complete',icon:'🎉'}
 ];
 
 /* == Stepper Component == */
@@ -135,7 +177,7 @@ function Stepper({steps, currentIdx}){
     return <div className="step" key={s.id}>
       {i<steps.length-1 && <div className="step-line" style={done?{background:'var(--green)'}:{}}/>}
       <div className={`step-dot ${done?'done':''} ${active?'active':''} ${locked?'locked':''}`}>
-        {done?'\u2713':i+1}
+        {done?'✓':i+1}
       </div>
       <div className={`step-label ${done?'done':''} ${active?'active':''}`}>{s.icon} {s.label}</div>
     </div>
@@ -146,7 +188,7 @@ function Stepper({steps, currentIdx}){
 function SourceConfig({config, setConfig}){
   return <div className="card">
     <h3 style={{fontWeight:700,marginBottom:16,display:'flex',alignItems:'center',gap:8}}>
-      <span style={{color:'var(--cyan)'}}>{'\u25C6'}</span> Source Database Connection
+      <span style={{color:'var(--cyan)'}}>◆</span> Source Database Connection
     </h3>
     <div className="grid-2" style={{gap:16}}>
       <div><label>Database Type</label>
@@ -164,6 +206,36 @@ function SourceConfig({config, setConfig}){
         <div><label>Password</label><input type="password" value={config.pass} onChange={e=>setConfig({...config,pass:e.target.value})}/></div>
       </div>
     </div>
+  </div>
+}
+
+/* == Connection Tester Component == */
+function ConnectionTester({config}){
+  const [testing, setTesting] = useState(false);
+  const [result, setResult] = useState(null);
+
+  const testConnection = ()=>{
+    setTesting(true);
+    setResult(null);
+    setTimeout(()=>{
+      const latency = Math.floor(Math.random()*150)+20;
+      setResult({status:'success',latency,poolSize:4});
+      setTesting(false);
+    }, 1500);
+  };
+
+  return <div style={{marginTop:16}}>
+    <button className="btn btn-sm btn-outline" onClick={testConnection} disabled={!config.engine || testing}>
+      {testing?'🔄 Testing...':'🔌 Test Connection'}
+    </button>
+    {result && <div className={`connection-test ${result.status}`} style={{marginTop:12}}>
+      <div className="status"/>
+      <div style={{fontSize:'.85rem'}}>
+        <span style={{fontWeight:700,color:'var(--green)'}}>Connected</span>
+        <span style={{color:'var(--muted)',marginLeft:16}}>Latency: {result.latency}ms</span>
+        <span style={{color:'var(--muted)',marginLeft:16}}>Pool: {result.poolSize} connections</span>
+      </div>
+    </div>}
   </div>
 }
 
@@ -190,10 +262,384 @@ function AnalysisSimulation({sourceConfig, onComplete}){
     const eng = DB_ENGINES.find(d=>d.id===sourceConfig.engine);
     const dbName = eng?eng.name:'Database';
     const steps = [
-      [{t:0,msg:`Connecting to ${dbName} at ${sourceConfig.host||'localhost'}:${sourceConfig.port||'5432'}...`,c:'var(--cyan)'},{t:600,msg:'  \u2713 TCP connection established',c:'var(--green)'},{t:1000,msg:'  \u2713 Authentication successful',c:'var(--green)'},{t:1300,msg:`  \u2713 Database "${sourceConfig.database||'production_db'}" accessible`,c:'var(--green)'},{t:1600,msg:'  \u2713 Connection pool initialized (4 connections)',c:'var(--green)'}],
-      [{t:0,msg:'\n\u{1F4CB} Schema Analysis Agent starting...',c:'var(--purple)'},{t:400,msg:'  Introspecting catalog metadata...',c:'var(--muted)'},{t:900,msg:'  \u2713 Found 47 tables, 312 columns, 23 indexes',c:'var(--green)'},{t:1300,msg:'  \u2713 Found 18 foreign key constraints',c:'var(--green)'},{t:1600,msg:'  \u2713 Found 5 unique constraints, 12 check constraints',c:'var(--green)'},{t:1900,msg:'  \u2713 Mapped 38 data types across columns',c:'var(--green)'},{t:2200,msg:'  \u26A0 3 columns use deprecated types (MONEY, NTEXT, IMAGE)',c:'var(--amber)'},{t:2500,msg:'  \u2713 Schema topology graph built (depth: 6 levels)',c:'var(--green)'}],
-      [{t:0,msg:'\n\u{1F4CA} Data Profiling Agent starting...',c:'var(--purple)'},{t:400,msg:'  Sampling data distributions...',c:'var(--muted)'},{t:900,msg:'  \u2713 Total rows: 2,847,391 across 47 tables',c:'var(--green)'},{t:1200,msg:'  \u2713 Total data size: 4.2 GB (3.1 GB data + 1.1 GB indexes)',c:'var(--green)'},{t:1500,msg:'  \u2713 Largest table: orders (892,441 rows, 1.3 GB)',c:'var(--green)'},{t:1800,msg:'  \u26A0 NULL rate > 50% in 8 columns across 4 tables',c:'var(--amber)'},{t:2100,msg:'  \u2713 Data type distribution analysis complete',c:'var(--green)'},{t:2400,msg:'  \u2713 Cardinality analysis: 12 low-cardinality columns identified',c:'var(--green)'}],
-      [{t:0,msg:'\n\u{1F517} Dependency Mapping Agent starting...',c:'var(--purple)'},{t:400,msg:'  Walking FK dependency graph...',c:'var(--muted)'},{t:800,msg:'  \u2713 18 FK relationships mapped',c:'var(--green)'},{t:1100,msg:'  \u2713 Topological sort: 6 dependency levels',c:'var(--green)'},{t:1400,msg:'  \u26A0 3 circular dependency gr��W2FWFV7FVB�3�wf"����&W"�w�ǷC�s��6s�r�S#s2"f�Ww2�Ǘ�VB�B�FW&�Ɨ�VB��7F�F&B�r�3�wf"���w&VV�w�ǷC�#��6s�r�S#s27&�72�66�V�&VfW&V�6W3�"f�V�Br�3�wf"���w&VV�w������C���6s�u���W�#c���7F�&VB&�6VGW&R�Ǘ6�2vV�B7F'F��r���r�3�wf"���W'�R�w�ǷC�C��6s�r'6��r&�6VGW&RFVf��F���2���r�3�wf"����WFVB�w�ǷC����6s�r�S#s2B7F�&VB&�6VGW&W2�Ǘ�VBr�3�wf"���w&VV�w�ǷC���6s�r�S#s2�G&�vvW'2�Ǘ�VB�2$Td�$R�ReDU"�r�3�wf"���w&VV�w�ǷC�C��6s�r�S#s2bW6W"�FVf��VBgV�7F���2�Ǘ�VBr�3�wf"���w&VV�w�ǷC�s��6s�r�S#dB&�6VGW&W2W6RfV�F�"�7V6�f�27��F�������'F&�R�r�3�wf"����&W"�w�ǷC�#��6s�r�S#sr"G&�vvW'2&VfW&V�6R7�7FV�F&�W2F�&V7Fǒr�3�wf"���&VB�w�ǷC�#3��6s�r�S#s26��F�&�ƗG�66�&S�sR��VVG2��V�&Wf�Wr�r�3�wf"����&W"�w������C���6s�u���W�#d�W&f�&��6R&6VƖ�RvV�B7F'F��r���r�3�wf"���W'�R�w�ǷC�C��6s�r6GW&��rVW'�W&f�&��6R7FF�7F�72���r�3�wf"����WFVB�w�ǷC����6s�r�S#s2frVW'�&W7��6RF��S�#6�2r�3�wf"���w&VV�w�ǷC���6s�r�S#d26��rVW&�W2�FV�F�f�VB��S�2�r�3�wf"����&W"�w�ǷC�C��6s�r�S#s2��FW�W6vRVff�6�V�7���rRr�3�wf"���w&VV�w�ǷC�s��6s�r�S#s2F&�R66�&F��B�"R�66WF&�R�r�3�wf"���w&VV�w�ǷC�#��6s�r�S#s26���V7F������WF�Ɨ�F���c"Rr�3�wf"���w&VV�w������C���6s�u���W�cS'�6V7W&�G�b6��Ɩ�6RVF�BvV�B7F'F��r���r�3�wf"���W'�R�w�ǷC�C��6s�r66���rW&֗76���2�B66W72GFW&�2���r�3�wf"����WFVB�w�ǷC����6s�r�S#s2#"FF&6RW6W'2�&��W2VF�FVBr�3�wf"���w&VV�w�ǷC���6s�r�S#dRW6W'2�fRW�6W76�fR&�f��VvW2�5UU%U4U"�D$�r�3�wf"����&W"�w�ǷC�C��6s�r�S#sr"6��V��26��F��V�V�7'�FVB���V����54�r�3�wf"���&VB�w�ǷC�s��6s�r�S#dVF�B��vv��s�'F��ǒ6��f�wW&VBr�3�wf"����&W"�w�ǷC�#��6s�r�S#s254��D�3�V�&�VBf�"��6���V7F���2r�3�wf"���w&VV�w�ǷC�#3��6s�r�S#d&�r��WfV�6V7W&�G����B6��f�wW&VBr�3�wf"����&W"�w������C���6s�u���W�cSG�F֖�v�Ǘ6�2vV�B7F'F��r���r�3�wf"���W'�R�w�ǷC�3��6s�r66���rf�"�F�RF֖�7G&F����77VW2���r�3�wf"����WFVB�w�ǷC�c��6s�r�S#srrV�W6VB��FW�W2f�V�B�v7F��r3C�"�r�3�wf"���&VB�w�ǷC����6s�r�S#sr2�'��VBF&�W2v�F��W&�&VfW&V�6W2r�3�wf"���&VB�w�ǷC�#��6s�r�S#d"F&�W2֗76��r&��'��W�2r�3�wf"����&W"�w�ǷC�S��6s�r�S#srB7F�R7FF�7F�72���F�2��B�r�3�wf"���&VB�w�ǷC����6s�r�S#d�V�W6VBW6W"66�V�G2�����v����F�2�r�3�wf"����&W"�w�ǷC�#��6s�r�S#sr27F�&VB&�6VGW&W2�WfW"W�V7WFVBr�3�wf"���&VB�w�ǷC�#C��6s�r�S#dF&�Rg&v�V�FF����3R��RF&�W2r�3�wf"����&W"�w�ǷC�#s��6s�r�S#d��WF��FVB&6�WfW&�f�6F���6��f�wW&VBr�3�wf"����&W"�w�ǷC�3��6s�r�S#sr֗76��rd�6��7G&��G2��b&V�F���6��2r�3�wf"���&VB�w�ǷC�33��6s�r�S#d"FW&V6FVBFFG�RW6vW2f�V�Br�3�wf"����&W"�w�ǷC�3c��6s�r�S#s2v�Ǘ6�26���WFS�r7&�F�6��#2v&��w2r�3�wf"���w&VV�w������C���6s�u���W�cdS�&�6�66�&��rvV�B7F'F��r���r�3�wf"���W'�R�w�ǷC�C��6s�rvw&VvF��rf��F��w27&�72��vV�G2���r�3�wf"����WFVB�w�ǷC����6s�r66�V�6���W��G���TD�T��66�&S�C"��r�3�wf"����&W"�w�ǷC���6s�rFFf��V�R&�6����r�66�&S�#���r�3�wf"���w&VV�w�ǷC�C��6s�r6��F�&�ƗG�&�6���TD�T��66�&S�SR��r�3�wf"����&W"�w�ǷC�s��6s�r6V7W&�G�&�6����t��66�&S�s"��r�3�wf"���&VB�w�ǷC�#��6s�rF֖�FV'B&�6����t��66�&S�c���r�3�wf"���&VB�w�ǷC�#3��6s�r)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)Hr�3�wf"���F�Ғw�ǷC�#S��6s�r�dU$��$�4�44�$S�S2���TD�TҒr�3�wf"����&W"�w�ǷC�#���6s�rW7F��FVB֖w&F���GW&F���&�V�r�3�wf"���7��w������C���6s�u���W�cDDG�vV�W&F��r6��&V�V�6�fR�Ǘ6�2&W�'B���r�3�wf"���W'�R�w�ǷC�S��6s�r�S#s26���Ɩ�r66�V��Ǘ6�2���r�3�wf"���w&VV�w�ǷC����6s�r�S#s26���Ɩ�rFF&�f��R���r�3�wf"���w&VV�w�ǷC���6s�r�S#s26���Ɩ�rFWV�FV�7�����r�3�wf"���w&VV�w�ǷC�C��6s�r�S#s26���Ɩ�rF֖�vf��F��w2���r�3�wf"���w&VV�w�ǷC�s��6s�r�S#s2vV�W&F��r�&V6���V�FF���2���r�3�wf"���w&VV�w�ǷC�#��6s�u���S#S�ŕ4�24���UDR�S#Sr�3�wf"���7��w�ǷC�##��6s�rF�F�f��F��w3�Cr�FV�2�r7&�F�6��#2v&��w2�r��f�r�3�wf"���FW�B�w����Ӱ���WBv��&�FV�����7FW2�f�$V6���7FW�6w2�6������6��7B7FWFV���v��&�FV����7FW�6w2�f�$V6�������66�VB�����FD��r����6r���2��7FWFV�����B���ғ��6��7B��B��F��������7FW�6w2��������B�����b�6��7FW2��V�wF�����66�VB�����6WE7FW�G��6����7FWFV�����B�#���Тv��&�FV������B�C��ғ���66�VB����簢6WDF��R�G'VR���6WE'V���r�f�6R���6WE7FW�G���ŕ4�5�5DU2��V�wF������6���WFR������v��&�FV���#���Ӱ��&WGW&��F�c��7FWW"7FW3״�ŕ4�5�5DU7�7W'&V�D�G�׷7FW�G�����'V���rbbF��Rbb�F�b7G��S׷�FW�DƖv�v6V�FW"r�FF��s�sC�w����'WGF��6�74��S�&'F�'F��&��'�"��6Ɩ6�׷'V��Ǘ6�7ТF�6&�VCײ6�W&6T6��f�r�V�v��WТ7G��S׷�f��E6��S�s&V�r�FF��s�sG�3g�w����u�W�cc��w��V�6��Ǘ6�2�VƖ�P���'WGF����6�W&6T6��f�r�V�v��Rbb�7G��S׷�6���#�wf"���F�Ғr��&v��F��"�f��E6��S�r�W&V�w���6V�V7B6�W&6RFF&6R&�fRF�&Vv�����Т��F�c�Т��'V���w��F��R�bb�F�b6�74��S�&��r�&��"&Vc׶��u&Vg�����w2�����ƒ����F�b�W�׶��6�74��S�&��r�Ɩ�R"7G��S׷�6���#���6���'�����FW�G���F�c�Т�'V���rbb�7�7G��S׷���F���wV�6R2��f��FRr�6���#�wf"���7��w���u�S#S�"w���7��Т��F�c�Т�F��Rbb�F�b7G��S׷�FW�DƖv�v6V�FW"r��&v��F��g����7�6�74��S�'FrFr���#�u�S#s2w��Ǘ6�26���WFS��7����F�c�Т��F�c�Р�����Ǘ6�2&W�'B����gV�7F����Ǘ6�5&W�'B��6�W&6T6��f�wҗ��&WGW&��F�b6�74��S�&fFR֖�#��F�b6�74��S�&w&�B�B"7G��S׷��&v��&�GF�ӣ#G�������sCrr�âuF&�W2r�3�wf"���7��w�Ƕ�s3"r�ât6��V��2r�3�wf"���W'�R�w�Ƕ�s"��r�âuF�F�&�w2r�3�wf"���w&VV�w�Ƕ�sB�"t"r�âtFF6��Rr�3�wf"����&W"�w�����3���F�b6�74��S�&6&B"�W�׷2���7G��S׷�FW�DƖv�v6V�FW"r�FF��s�g����F�b7G��S׷�f��E6��S�s�g&V�r�f��EvV�v�C���6���#�2�7���2�����F�c��F�b7G��S׷�f��E6��S�r�s�&V�r�6���#�wf"����WFVB�w���2�����F�c���F�c��Т��F�cࠢ�F�b6�74��S�&6&B&W�'B�6V7F���"7G��S׷��&v��&�GF�ӣ#G���ƃ3�u�W�cdS�w��fW&��&�6�76W76�V�C���3��F�b7G��S׷�F�7���vf�W�r�v�3"�Ɩv�FV�3�v6V�FW"r�f�W�w&�ww&w����F�b6�74��S�'66�&R�&��r&�6���VB"7G��S׷�r��7Bs�sS2Rw����F�b7G��S׷�&6�w&�V�C�wf"���&s"�r�&�&FW%&F�W3�sSRr�v�GF��sbƆV�v�C�sb�F�7���vf�W�r�Ɩv�FV�3�v6V�FW"rƧW7F�g�6��FV�C�v6V�FW"w���S3��F�c���F�c��F�b7G��S׷�f�W��������âu66�V�6���W��G�r�c�C"�3�wf"����&W"�w�ǶâtFFf��V�Rr�c�#��3�wf"���w&VV�w�Ƕât6��F�&�ƗG�r�c�SR�3�wf"����&W"�w�Ƕâu6V7W&�G�r�c�s"�3�wf"���&VB�w�ǶâtF֖�FV'Br�c�c��3�wf"���&VB�w�����#���F�b�W�׷"���7G��S׷��&v��&�GF�ӣ�����F�b7G��S׷�F�7���vf�W�rƧW7F�g�6��FV�C�w76R�&WGvVV�r�f��E6��S�r�&V�r��&v��&�GF�ӣ'����7��"�����7���7�7G��S׷�6���#�"�2�f��EvV�v�C�s���"�g����7����F�c��F�b6�74��S�'&�w&W72�&"#��F�b6�74��S�'&�w&W72�f���"7G��S׷�v�GF��"�b�rRr�&6�w&�V�C�"�7������F�c���F�c��Т��F�c���F�c���F�cࠢ�F�b6�74��S�&6&B&W�'B�6V7F���"7G��S׷��&v��&�GF�ӣ#G���ƃ3�u�W�cD4'�w�66�V��Ǘ6�3���3��F&�R6�74��S�'&W�'B�F&�R#��F�VC��G#��F��F&�S��F���F��6��V��3��F���F��&�w3��F���F��6��S��F���F��d�3��F���F���FW�W3��F���F��77VW3��F����G#���F�VC��F&�G������v�&FW'2r�B�s��"�CCr�s�2t"r�2�B��7�6�74��S�'FrFr�v&�#�FW&V6FVBG�S��7������v7W7F��W'2r��s#CRÃ�"r�s3��"r��2��7�6�74��S�'FrFr���#�6�V���7������w&�GV7G2rÒ�s��CCRr�sC"�"r�"�"��7�6�74��S�'FrFr���#�6�V���7������v�&FW%��FV�2rÂ�s�S#2Ã�r�s���"r�"�2��7�6�74��S�'FrFr�v&�#憖v��T��&FS��7������v��fV�F�'�r�r�s3B�##r�s#��"r�2�"��7�6�74��S�'FrFr�W'"#�֗76��r���7������w��V�G2r��sCCRÃ�"r�sS#�"r�"�B��7�6�74��S�'FrFr�W'"#�V�V�7'�FVB����7������vVF�E���rr�b�sC"�33r�s��"r����7�6�74��S�'FrFr�v&�#�7F�R7FG3��7����������"ƒ����G"�W�׶����FC��6�FS�%�����6�FS���FC��FC�%�����FC��FC�%�%����FC��FC�%�5����FC��FC�%�E����FC��FC�%�U����FC��FC�%�e����FC���G#�Т��F&�G����F&�S��7G��S׷�f��E6��S�r�s�&V�r�6���#�wf"���F�Ғr��&v��F������6��v��rF�r�bCrF&�W2�gV��&W�'B��6�VFW2��F&�W2������F�cࠢ�F�b6�74��S�&6&B&W�'B�6V7F���"7G��S׷��&v��&�GF�ӣ#G���ƃ3�u�W�cSG�w�G�R ompatibility Matrix</h3>
+      [{t:0,msg:`Connecting to ${dbName} at ${sourceConfig.host||'localhost'}:${sourceConfig.port||'5432'}...`,c:'var(--cyan)'},{t:600,msg:'  ✓ TCP connection established',c:'var(--green)'},{t:1000,msg:'  ✓ Authentication successful',c:'var(--green)'},{t:1300,msg:`  ✓ Database "${sourceConfig.database||'production_db'}" accessible`,c:'var(--green)'},{t:1600,msg:'  ✓ Connection pool initialized (4 connections)',c:'var(--green)'}],
+      [{t:0,msg:'\n📋 Schema Analysis Agent starting...',c:'var(--purple)'},{t:400,msg:'  Introspecting catalog metadata...',c:'var(--muted)'},{t:900,msg:'  ✓ Found 47 tables, 312 columns, 23 indexes',c:'var(--green)'},{t:1300,msg:'  ✓ Found 18 foreign key constraints',c:'var(--green)'},{t:1600,msg:'  ✓ Found 5 unique constraints, 12 check constraints',c:'var(--green)'},{t:1900,msg:'  ✓ Mapped 38 data types across columns',c:'var(--green)'},{t:2200,msg:'  ⚠ 3 columns use deprecated types (MONEY, NTEXT, IMAGE)',c:'var(--amber)'},{t:2500,msg:'  ✓ Schema topology graph built (depth: 6 levels)',c:'var(--green)'}],
+      [{t:0,msg:'\n📊 Data Profiling Agent starting...',c:'var(--purple)'},{t:400,msg:'  Sampling data distributions...',c:'var(--muted)'},{t:900,msg:'  ✓ Total rows: 2,847,391 across 47 tables',c:'var(--green)'},{t:1200,msg:'  ✓ Total data size: 4.2 GB (3.1 GB data + 1.1 GB indexes)',c:'var(--green)'},{t:1500,msg:'  ✓ Largest table: orders (892,441 rows, 1.3 GB)',c:'var(--green)'},{t:1800,msg:'  ⚠ NULL rate > 50% in 8 columns across 4 tables',c:'var(--amber)'},{t:2100,msg:'  ✓ Data type distribution analysis complete',c:'var(--green)'},{t:2400,msg:'  ✓ Cardinality analysis: 12 low-cardinality columns identified',c:'var(--green)'}],
+      [{t:0,msg:'\n🔗 Dependency Mapping Agent starting...',c:'var(--purple)'},{t:400,msg:'  Walking FK dependency graph...',c:'var(--muted)'},{t:800,msg:'  ✓ 18 FK relationships mapped',c:'var(--green)'},{t:1100,msg:'  ✓ Topological sort: 6 dependency levels',c:'var(--green)'},{t:1400,msg:'  ⚠ 3 circular dependency groups detected',c:'var(--amber)'},{t:1700,msg:'  ✓ 12 views analyzed (4 materialized, 8 standard)',c:'var(--green)'},{t:2000,msg:'  ✓ Cross-schema references: 2 found',c:'var(--green)'}],
+      [{t:0,msg:'\n⚙ Stored Procedure Analysis Agent starting...',c:'var(--purple)'},{t:400,msg:'  Parsing procedure definitions...',c:'var(--muted)'},{t:800,msg:'  ✓ 14 stored procedures analyzed',c:'var(--green)'},{t:1100,msg:'  ✓ 8 triggers analyzed (3 BEFORE, 5 AFTER)',c:'var(--green)'},{t:1400,msg:'  ✓ 6 user-defined functions analyzed',c:'var(--green)'},{t:1700,msg:'  ⚠ 4 procedures use vendor-specific syntax (non-portable)',c:'var(--amber)'},{t:2000,msg:'  ✗ 2 triggers reference system tables directly',c:'var(--red)'},{t:2300,msg:'  ⚠ Compatibility score: 71% (needs manual review)',c:'var(--amber)'}],
+      [{t:0,msg:'\n⚡ Performance Baseline Agent starting...',c:'var(--purple)'},{t:400,msg:'  Capturing query performance statistics...',c:'var(--muted)'},{t:800,msg:'  ✓ Avg query response time: 23ms',c:'var(--green)'},{t:1100,msg:'  ⚠ 3 slow queries identified (> 500ms)',c:'var(--amber)'},{t:1400,msg:'  ✓ Index usage efficiency: 87%',c:'var(--green)'},{t:1700,msg:'  ✓ Table scan ratio: 4.2% (acceptable)',c:'var(--green)'},{t:2000,msg:'  ✓ Connection pool utilization: 62%',c:'var(--green)'}],
+      [{t:0,msg:'\n🔒 Security & Compliance Audit Agent starting...',c:'var(--purple)'},{t:400,msg:'  Scanning permissions and access patterns...',c:'var(--muted)'},{t:800,msg:'  ✓ 22 database users/roles audited',c:'var(--green)'},{t:1100,msg:'  ⚠ 5 users have excessive privileges (SUPERUSER/DBA)',c:'var(--amber)'},{t:1400,msg:'  ✗ 2 columns contain unencrypted PII (email, SSN)',c:'var(--red)'},{t:1700,msg:'  ⚠ Audit logging: partially configured',c:'var(--amber)'},{t:2000,msg:'  ✓ SSL/TLS: enabled for all connections',c:'var(--green)'},{t:2300,msg:'  ⚠ Row-level security: not configured',c:'var(--amber)'}],
+      [{t:0,msg:'\n🔍 Admin Gap Analysis Agent starting...',c:'var(--purple)'},{t:300,msg:'  Scanning for idle administration issues...',c:'var(--muted)'},{t:600,msg:'  ✗ 7 unused indexes found (wasting 340 MB)',c:'var(--red)'},{t:900,msg:'  ✗ 3 orphaned tables with zero references',c:'var(--red)'},{t:1200,msg:'  ⚠ 12 tables missing primary keys',c:'var(--amber)'},{t:1500,msg:'  ✗ 4 stale statistics (> 90 days old)',c:'var(--red)'},{t:1800,msg:'  ⚠ 8 unused user accounts (no login > 180 days)',c:'var(--amber)'},{t:2100,msg:'  ✗ 3 stored procedures never executed',c:'var(--red)'},{t:2400,msg:'  ⚠ Table fragmentation > 30% on 5 tables',c:'var(--amber)'},{t:2700,msg:'  ⚠ No automated backup verification configured',c:'var(--amber)'},{t:3000,msg:'  ✗ Missing FK constraints on 6 relationships',c:'var(--red)'},{t:3300,msg:'  ⚠ 2 deprecated data type usages found',c:'var(--amber)'},{t:3600,msg:'  ✓ Gap analysis complete: 17 critical, 23 warnings',c:'var(--green)'}],
+      [{t:0,msg:'\n🛡 Risk Scoring Agent starting...',c:'var(--purple)'},{t:400,msg:'  Aggregating findings across all agents...',c:'var(--muted)'},{t:800,msg:'  Schema complexity: MEDIUM (score: 42/100)',c:'var(--amber)'},{t:1100,msg:'  Data volume risk: LOW (score: 28/100)',c:'var(--green)'},{t:1400,msg:'  Compatibility risk: MEDIUM (score: 55/100)',c:'var(--amber)'},{t:1700,msg:'  Security risk: HIGH (score: 72/100)',c:'var(--red)'},{t:2000,msg:'  Admin debt risk: HIGH (score: 68/100)',c:'var(--red)'},{t:2300,msg:'  ────────────────────────────',c:'var(--dim)'},{t:2500,msg:'  OVERALL RISK SCORE: 53/100 (MEDIUM)',c:'var(--amber)'},{t:2800,msg:'  Estimated migration duration: 2h 15m',c:'var(--cyan)'}],
+      [{t:0,msg:'\n📝 Generating comprehensive analysis report...',c:'var(--purple)'},{t:500,msg:'  ✓ Compiling schema analysis...',c:'var(--green)'},{t:800,msg:'  ✓ Compiling data profile...',c:'var(--green)'},{t:1100,msg:'  ✓ Compiling dependency map...',c:'var(--green)'},{t:1400,msg:'  ✓ Compiling admin gap findings...',c:'var(--green)'},{t:1700,msg:'  ✓ Generating AI recommendations...',c:'var(--green)'},{t:2000,msg:'\n━ ANALYSIS COMPLETE ━',c:'var(--cyan)'},{t:2200,msg:'  Total findings: 47 items (17 critical, 23 warnings, 7 info)',c:'var(--text)'}],
+    ];
+
+    let globalDelay = 0;
+    steps.forEach((stepMsgs, si) => {
+      const stepDelay = globalDelay;
+      stepMsgs.forEach(m => {
+        sched(()=>addLog(m.msg, m.c), stepDelay + m.t);
+      });
+      const maxT = Math.max(...stepMsgs.map(m=>m.t));
+      if(si < steps.length - 1){
+        sched(()=>setStepIdx(si+1), stepDelay + maxT + 200);
+      }
+      globalDelay += maxT + 400;
+    });
+
+    sched(()=>{
+      setDone(true);
+      setRunning(false);
+      setStepIdx(ANALYSIS_STEPS.length);
+      onComplete();
+    }, globalDelay + 200);
+  };
+
+  return <div>
+    <Stepper steps={ANALYSIS_STEPS} currentIdx={stepIdx}/>
+    {!running && !done && <div style={{textAlign:'center',padding:'40px 0'}}>
+      <button className="btn btn-primary" onClick={runAnalysis}
+        disabled={!sourceConfig.engine}
+        style={{fontSize:'1rem',padding:'14px 36px'}}>
+        🚀 Launch Analysis Pipeline
+      </button>
+      {!sourceConfig.engine && <p style={{color:'var(--dim)',marginTop:12,fontSize:'.85rem'}}>Select a source database above to begin</p>}
+    </div>}
+    {(running||done) && <div className="log-box" ref={logRef}>
+      {logs.map((l,i)=><div key={i} className="log-line" style={{color:l.color}}>{l.text}</div>)}
+      {running && <span style={{animation:'pulse 1s infinite',color:'var(--cyan)'}}>▋</span>}
+    </div>}
+    {done && <div style={{textAlign:'center',marginTop:16}}>
+      <span className="tag tag-ok">✓ Analysis Complete</span>
+    </div>}
+  </div>
+}
+
+/* == Schema Diff Viewer == */
+function SchemaDiffViewer(){
+  const sourceSchema = `CREATE TABLE orders (
+  id INTEGER PRIMARY KEY,
+  customer_id INTEGER NOT NULL,
+  order_date TIMESTAMP,
+  total DECIMAL(10,2),
+  status VARCHAR(50),
+  FOREIGN KEY (customer_id) REFERENCES customers(id)
+);
+
+CREATE INDEX idx_order_date ON orders(order_date);
+CREATE INDEX idx_customer ON orders(customer_id);`;
+
+  const targetSchema = `CREATE TABLE orders (
+  id INTEGER PRIMARY KEY,
+  customer_id INTEGER NOT NULL,
+  order_date TIMESTAMP WITH TIME ZONE,
+  total NUMERIC(10,2),
+  status VARCHAR(50),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (customer_id) REFERENCES customers(id)
+);
+
+CREATE INDEX idx_order_date ON orders(order_date);
+CREATE INDEX idx_customer ON orders(customer_id);
+CREATE INDEX idx_status ON orders(status);`;
+
+  return <div className="card">
+    <h3 style={{marginBottom:16,display:'flex',alignItems:'center',gap:8}}>
+      🔄 Schema Diff: Source vs Target
+    </h3>
+    <div className="comparison">
+      <div className="comparison-panel">
+        <h4>Source Schema (PostgreSQL)</h4>
+        <div className="comparison-code">{sourceSchema}</div>
+      </div>
+      <div className="comparison-panel">
+        <h4>Target Schema (PostgreSQL)</h4>
+        <div className="comparison-code">{targetSchema}</div>
+      </div>
+    </div>
+    <div style={{marginTop:16,fontSize:'.85rem',color:'var(--muted)'}}>
+      <p><span style={{color:'var(--amber)'}}>⚠ Changes:</span> TIMESTAMP WITH TIME ZONE added for timezone handling, created_at default timestamp added, additional index on status column</p>
+    </div>
+  </div>
+}
+
+/* == Query Translation Preview == */
+function QueryTranslationPreview(){
+  const queries = [
+    {source:'SELECT * FROM orders WHERE order_date > NOW() - INTERVAL \'30 days\';',target:'SELECT * FROM orders WHERE order_date > GETDATE() - INTERVAL \'30\' DAY;',lang:'SQL Server'},
+    {source:'SELECT customer_id, COUNT(*) as cnt FROM orders GROUP BY customer_id HAVING COUNT(*) > 5;',target:'SELECT customer_id, COUNT(*) as cnt FROM orders GROUP BY customer_id HAVING COUNT(*) > 5;',lang:'Compatible'},
+    {source:'SELECT EXTRACT(YEAR FROM order_date) as year FROM orders;',target:'SELECT YEAR(order_date) as year FROM orders;',lang:'SQL Server'}
+  ];
+
+  return <div className="card">
+    <h3 style={{marginBottom:16,display:'flex',alignItems:'center',gap:8}}>
+      📜 Query Translation Preview
+    </h3>
+    {queries.map((q,i)=><div key={i} style={{marginBottom:20,paddingBottom:20,borderBottom:i<queries.length-1?'1px solid var(--border)':'none'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+        <span style={{fontWeight:600,fontSize:'.85rem'}}>Query {i+1}</span>
+        <span className={`tag ${q.lang==='Compatible'?'tag-ok':'tag-warn'}`}>{q.lang}</span>
+      </div>
+      <div style={{marginBottom:8}}>
+        <div style={{fontSize:'.75rem',color:'var(--muted)',marginBottom:2}}>Source</div>
+        <div className="comparison-code">{q.source}</div>
+      </div>
+      <div>
+        <div style={{fontSize:'.75rem',color:'var(--muted)',marginBottom:2}}>Target Translation</div>
+        <div className="comparison-code">{q.target}</div>
+      </div>
+    </div>)}
+  </div>
+}
+
+/* == Data Preview Panel == */
+function DataPreviewPanel(){
+  const [activeTab, setActiveTab] = useState('before');
+
+  const beforeData = [
+    {id:1,name:'John Doe',email:'john@example.com',amount:'1250.50'},
+    {id:2,name:'Jane Smith',email:'jane@example.com',amount:'2100.00'},
+    {id:3,name:'Bob Johnson',email:'bob@example.com',amount:'850.75'},
+  ];
+
+  const afterData = [
+    {id:1,name:'John Doe',email:'john@example.com',amount:1250.50,migrated_at:'2026-03-23'},
+    {id:2,name:'Jane Smith',email:'jane@example.com',amount:2100.00,migrated_at:'2026-03-23'},
+    {id:3,name:'Bob Johnson',email:'bob@example.com',amount:850.75,migrated_at:'2026-03-23'},
+  ];
+
+  return <div className="card">
+    <h3 style={{marginBottom:16,display:'flex',alignItems:'center',gap:8}}>
+      📋 Sample Data Preview
+    </h3>
+    <div className="tabs">
+      <button className={`tab ${activeTab==='before'?'active':''}`} onClick={()=>setActiveTab('before')}>
+        Source Data
+      </button>
+      <button className={`tab ${activeTab==='after'?'active':''}`} onClick={()=>setActiveTab('after')}>
+        Target Data
+      </button>
+    </div>
+    <div className="tab-content">
+      {activeTab==='before' && <div style={{overflowX:'auto'}}>
+        <table className="report-table">
+          <thead><tr><th>id</th><th>name</th><th>email</th><th>amount</th></tr></thead>
+          <tbody>{beforeData.map(r=><tr key={r.id}><td>{r.id}</td><td>{r.name}</td><td>{r.email}</td><td>{r.amount}</td></tr>)}</tbody>
+        </table>
+      </div>}
+      {activeTab==='after' && <div style={{overflowX:'auto'}}>
+        <table className="report-table">
+          <thead><tr><th>id</th><th>name</th><th>email</th><th>amount</th><th>migrated_at</th></tr></thead>
+          <tbody>{afterData.map(r=><tr key={r.id}><td>{r.id}</td><td>{r.name}</td><td>{r.email}</td><td>{r.amount}</td><td>{r.migrated_at}</td></tr>)}</tbody>
+        </table>
+      </div>}
+    </div>
+  </div>
+}
+
+/* == Migration History Timeline == */
+function MigrationHistory(){
+  const migrations = [
+    {id:3,date:'2026-03-23 14:32',status:'success',duration:'2h 08m',rows:'2.8M',note:'Staging to Production'},
+    {id:2,date:'2026-03-22 10:15',status:'success',duration:'1h 45m',rows:'2.8M',note:'Dev to Staging'},
+    {id:1,date:'2026-03-20 16:20',status:'success',duration:'2h 22m',rows:'2.8M',note:'Initial test run'},
+  ];
+
+  return <div className="card">
+    <h3 style={{marginBottom:16,display:'flex',alignItems:'center',gap:8}}>
+      📅 Migration History & Timeline
+    </h3>
+    <div className="timeline">
+      {migrations.map(m=><div key={m.id} className="timeline-item">
+        <div className={`timeline-dot ${m.status}`}>
+          {m.status==='success'?'✓':'⏱'}
+        </div>
+        <div className="timeline-content">
+          <div className="timeline-title">{m.note}</div>
+          <div style={{fontSize:'.8rem',color:'var(--muted)'}}>
+            {m.date} • {m.duration} • {m.rows} rows
+          </div>
+        </div>
+      </div>)}
+    </div>
+  </div>
+}
+
+/* == Real-time Progress Metrics == */
+function ProgressMetrics({running}){
+  return <div className="card">
+    <h3 style={{marginBottom:16,display:'flex',alignItems:'center',gap:8}}>
+      ⚡ Real-time Progress Metrics
+    </h3>
+    <div className="metrics-grid">
+      <div className="metric-card">
+        <div className="metric-value">285K</div>
+        <div className="metric-label">Rows/sec</div>
+        <div className="metric-unit">throughput</div>
+      </div>
+      <div className="metric-card">
+        <div className="metric-value">42m</div>
+        <div className="metric-label">ETA</div>
+        <div className="metric-unit">remaining</div>
+      </div>
+      <div className="metric-card">
+        <div className="metric-value">1.8 GB</div>
+        <div className="metric-label">Transferred</div>
+        <div className="metric-unit">of 4.2 GB (43%)</div>
+      </div>
+      <div className="metric-card">
+        <div className="metric-value">18/47</div>
+        <div className="metric-label">Tables</div>
+        <div className="metric-unit">completed</div>
+      </div>
+    </div>
+    <div className="progress-bar" style={{marginTop:16}}>
+      <div className="progress-fill" style={{width:'43%'}}/>
+    </div>
+  </div>
+}
+
+/* == Rollback Plan Section == */
+function RollbackPlanSection(){
+  const steps = [
+    {step:1,action:'Pre-migration checkpoint',detail:'Create full backup snapshot of target database'},
+    {step:2,action:'Transaction log copy',detail:'Copy transaction logs for point-in-time recovery'},
+    {step:3,action:'Snapshot validation',detail:'Verify backup integrity before migration'},
+    {step:4,action:'Automated rollback trigger',detail:'Monitor for data mismatches, auto-rollback if issues'},
+    {step:5,action:'Post-migration validation',detail:'If validation fails, restore from checkpoint'},
+  ];
+
+  return <div className="card">
+    <h3 style={{marginBottom:16,display:'flex',alignItems:'center',gap:8}}>
+      🔄 Rollback Plan & Recovery Strategy
+    </h3>
+    <div style={{background:'var(--bg3)',border:'1px solid var(--border)',borderRadius:8,padding:16,marginBottom:16}}>
+      <div style={{display:'flex',gap:12,alignItems:'center',marginBottom:12}}>
+        <span style={{color:'var(--red)'}}>⚠</span>
+        <div>
+          <div style={{fontWeight:600,fontSize:'.9rem'}}>Estimated Rollback Time: 8-12 minutes</div>
+          <div style={{fontSize:'.8rem',color:'var(--muted)'}}>Full database restore from pre-migration checkpoint</div>
+        </div>
+      </div>
+    </div>
+    {steps.map((s,i)=><div key={i} className="rollback-section">
+      <div style={{display:'flex',gap:16}}>
+        <div style={{width:32,height:32,background:'var(--bg)',border:'1px solid var(--border)',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,color:'var(--cyan)',flexShrink:0}}>
+          {s.step}
+        </div>
+        <div style={{flex:1}}>
+          <div style={{fontWeight:600,fontSize:'.9rem'}}>{s.action}</div>
+          <div style={{fontSize:'.8rem',color:'var(--muted)',marginTop:2}}>{s.detail}</div>
+        </div>
+      </div>
+    </div>)}
+  </div>
+}
+
+/* == Export Report == */
+function ExportReport({reportData}){
+  const exportJSON = ()=>{
+    const json = JSON.stringify(reportData, null, 2);
+    const blob = new Blob([json], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `migration-analysis-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportCSV = ()=>{
+    const csv = 'Metric,Value\nTotal Tables,47\nTotal Columns,312\nTotal Rows,2847391\nData Size,4.2 GB\nOverall Risk Score,53/100\nEstimated Duration,2h 15m';
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `migration-analysis-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return <div className="export-button-group">
+    <button className="btn btn-outline btn-sm" onClick={exportJSON}>
+      📥 Export as JSON
+    </button>
+    <button className="btn btn-outline btn-sm" onClick={exportCSV}>
+      📊 Export as CSV
+    </button>
+  </div>
+}
+
+/* == Analysis Report == */
+function AnalysisReport({sourceConfig}){
+  const reportData = {
+    timestamp: new Date().toISOString(),
+    source: sourceConfig.engine,
+    tables: 47,
+    columns: 312,
+    rows: 2847391,
+    dataSize: '4.2 GB',
+    riskScore: 53
+  };
+
+  return <div className="fade-in">
+    <ExportReport reportData={reportData}/>
+
+    <div className="grid-4" style={{marginBottom:24}}>
+      {[{n:'47',l:'Tables',c:'var(--cyan)'},{n:'312',l:'Columns',c:'var(--purple)'},{n:'2.8M',l:'Total Rows',c:'var(--green)'},{n:'4.2 GB',l:'Data Size',c:'var(--amber)'}].map(s=>
+        <div className="card" key={s.l} style={{textAlign:'center',padding:16}}>
+          <div style={{fontSize:'1.6rem',fontWeight:900,color:s.c}}>{s.n}</div>
+          <div style={{fontSize:'.78rem',color:'var(--muted)'}}>{s.l}</div>
+        </div>
+      )}
+    </div>
+
+    <div className="card report-section" style={{marginBottom:24}}>
+      <h3>🛡 Overall Risk Assessment</h3>
+      <div style={{display:'flex',gap:32,alignItems:'center',flexWrap:'wrap'}}>
+        <div className="score-ring risk-med" style={{'--pct':'53%'}}>
+          <div style={{background:'var(--bg2)',borderRadius:'50%',width:76,height:76,display:'flex',alignItems:'center',justifyContent:'center'}}>53</div>
+        </div>
+        <div style={{flex:1}}>
+          {[{l:'Schema Complexity',v:42,c:'var(--amber)'},{l:'Data Volume',v:28,c:'var(--green)'},{l:'Compatibility',v:55,c:'var(--amber)'},{l:'Security',v:72,c:'var(--red)'},{l:'Admin Debt',v:68,c:'var(--red)'}].map(r=>
+            <div key={r.l} style={{marginBottom:8}}>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:'.8rem',marginBottom:2}}>
+                <span>{r.l}</span><span style={{color:r.c,fontWeight:700}}>{r.v}/100</span>
+              </div>
+              <div className="progress-bar"><div className="progress-fill" style={{width:r.v+'%',background:r.c}}/></div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+
+    <SchemaDiffViewer/>
+
+    <DataPreviewPanel/>
+
+    <QueryTranslationPreview/>
+
+    <div className="card report-section" style={{marginBottom:24}}>
+      <h3>📋 Schema Analysis</h3>
+      <table className="report-table">
+        <thead><tr><th>Table</th><th>Columns</th><th>Rows</th><th>Size</th><th>FKs</th><th>Indexes</th><th>Issues</th></tr></thead>
+        <tbody>
+          {[
+            ['orders',14,'892,441','1.3 GB',3,4,<span className="tag tag-warn">deprecated type</span>],
+            ['customers',11,'245,892','380 MB',0,3,<span className="tag tag-ok">clean</span>],
+            ['products',9,'18,445','42 MB',2,2,<span className="tag tag-ok">clean</span>],
+            ['order_items',8,'1,523,891','890 MB',2,3,<span className="tag tag-warn">high NULL rate</span>],
+            ['inventory',7,'34,221','28 MB',3,2,<span className="tag tag-err">missing PK</span>],
+            ['payments',10,'445,892','520 MB',2,4,<span className="tag tag-err">unencrypted PII</span>],
+            ['audit_log',6,'412,331','180 MB',1,1,<span className="tag tag-warn">stale stats</span>],
+          ].map((r,i)=><tr key={i}><td><code>{r[0]}</code></td><td>{r[1]}</td><td>{r[2]}</td><td>{r[3]}</td><td>{r[4]}</td><td>{r[5]}</td><td>{r[6]}</td></tr>)}
+        </tbody>
+      </table>
+      <p style={{fontSize:'.78rem',color:'var(--dim)',marginTop:8}}>Showing top 7 of 47 tables. Full report available in exported JSON.</p>
+    </div>
+
+    <div className="card report-section" style={{marginBottom:24}}>
+      <h3>🔄 Type Compatibility Matrix</h3>
       <table className="report-table">
         <thead><tr><th>Source Type</th><th>Count</th><th>Target Mapping</th><th>Status</th><th>Notes</th></tr></thead>
         <tbody>
@@ -212,7 +658,7 @@ function AnalysisSimulation({sourceConfig, onComplete}){
     </div>
 
     <div className="card report-section" style={{marginBottom:24}}>
-      <h3>{'\u{2699}'} Stored Procedures, Triggers &amp; Functions</h3>
+      <h3>⚙ Stored Procedures, Triggers & Functions</h3>
       <table className="report-table">
         <thead><tr><th>Object</th><th>Type</th><th>Lines</th><th>Portable</th><th>Issues</th></tr></thead>
         <tbody>
@@ -230,82 +676,69 @@ function AnalysisSimulation({sourceConfig, onComplete}){
     </div>
 
     <div className="card report-section" style={{marginBottom:24}}>
-      <h3>{'\u{1F50D}'} Admin Gap Analysis &#8212; Idle Administration Findings</h3>
+      <h3>🔍 Admin Gap Analysis — Idle Administration Findings</h3>
       <p style={{color:'var(--muted)',fontSize:'.85rem',marginBottom:16}}>Issues found from insufficient or deferred database administration. These must be resolved before migration.</p>
       {[
-        {sev:'critical',title:'7 Unused Indexes (340 MB wasted)',desc:'Indexes on orders.idx_old_status, customers.idx_legacy_region, and 5 others have zero reads in 90+ days. They slow writes and waste storage. Recommend dropping before migration.'},
-        {sev:'critical',title:'12 Tables Missing Primary Keys',desc:'Tables including inventory, temp_imports, staging_data, and 9 others lack primary keys. This will cause issues with replication and data validation during migration.'},
-        {sev:'critical',title:'6 Missing Foreign Key Constraints',desc:'Relationships between order_items\u2192products, payment_\u2192orders, and 4 others have no FK constraints. Data integrity cannot be guaranteed during migration.'},
-        {sev:'critical',title:'3 Orphaned Tables (Zero References)',desc:'Tables legacy_backup_2019, tmp_migration_test, old_customer_data have no FK references, no views, no queries in 180 days. Dead weight in the schema.'},
-        {sev:'critical',title:'4 Stale Statistics (>90 Days Old)',desc:'Statistics on orders, order_items, payments, audit_log are severely outdated. Query optimizer making poor decisions. Update statistics before benchmarking.'},
-        {sev:'critical',title:'3 Dead Stored Procedures',desc:'sp_legacy_import, sp_old_cleanup, sp_temp_fix have never been executed. Dead code that adds confusion during migration planning.'},
-        {sev:'warning',title:'8 Unused User Accounts',desc:'Accounts svc_old_app, dev_contractor_2022, test_user_3, and 5 others have no login activity in 180+ days. Security risk and clutter during permission migration.'},
-        {sev:'warning',title:'5 Tables with >30% Fragmentation',desc:'orders (47%), audit_log (38%), order_items (35%), payments (32%), inventory (31%). High fragmentation inflates data size estimates and slows full-table reads.'},
-        {sev:'warning',title:'No Automated Backup Verification',desc:'Backups are scheduled but never test-restored. Migration rollback strategy depends on verified backup integrity.'},
-        {sev:'warning',title:'2 Deprecated Data Types in Use',desc:'MONEY type on 2 columns, NTEXT on 1 column. These types are deprecated and should be converted to DECIMAL/TEXT before or during migration.'},
-        {sev:'info',title:'Missing Table/Column Comments',desc:'Only 12% of tables and 3% of columns have documentation comments. Consider documenting during migration for knowledge transfer.'},
-        {sev:'info',title:'No Connection Pooling at Application Layer',desc:'Application connects directly without pooling. Consider implementing pgBouncer or equivalent on target for better resource management.'},
+        {sev:'critical',title:'7 Unused Indexes (340 MB wasted)',desc:'Indexes on orders.idx_old_status, customers.idx_legacy_region have zero reads in 90+ days. They slow writes and waste storage.'},
+        {sev:'critical',title:'12 Tables Missing Primary Keys',desc:'Tables including inventory, temp_imports lack primary keys. This will cause issues with replication during migration.'},
+        {sev:'critical',title:'6 Missing Foreign Key Constraints',desc:'Relationships between order_items→products lack FK constraints. Data integrity cannot be guaranteed.'},
+        {sev:'critical',title:'3 Orphaned Tables (Zero References)',desc:'Tables legacy_backup_2019, old_customer_data have no references or queries in 180 days.'},
+        {sev:'warning',title:'8 Unused User Accounts',desc:'Accounts with no login activity in 180+ days. Security risk during permission migration.'},
+        {sev:'info',title:'No Automated Backup Verification',desc:'Backups are scheduled but never test-restored. Migration rollback depends on backup integrity.'},
       ].map((g,i)=><div key={i} className={`gap-item ${g.sev}`}>
-        <div className="gap-title">{g.sev==='critical'?'\u2717':g.sev==='warning'?'\u26A0':'\u{2139}'} {g.title}</div>
+        <div className="gap-title">{g.sev==='critical'?'✗':g.sev==='warning'?'⚠':'ℹ'} {g.title}</div>
         <div className="gap-desc">{g.desc}</div>
       </div>)}
     </div>
 
     <div className="card report-section" style={{marginBottom:24}}>
-      <h3>{'\u{1F512}'} Security &amp; Compliance Audit</h3>
+      <h3>🔒 Security & Compliance Audit</h3>
       <div className="grid-2">
         <div>
           <h4 style={{fontSize:'.9rem',fontWeight:700,marginBottom:12,color:'var(--muted)'}}>Findings</h4>
           {[
-            {ok:false,t:'2 columns with unencrypted PII (email in customers, SSN in payments)'},
-            {ok:false,t:'5 users with excessive privileges (SUPERUSER/DBA not needed)'},
-            {ok:false,t:'Row-level security not configured on any table'},
-            {ok:false,t:'Audit logging only partially configured'},
+            {ok:false,t:'2 columns with unencrypted PII (email, SSN)'},
+            {ok:false,t:'5 users with excessive privileges'},
+            {ok:false,t:'Row-level security not configured'},
             {ok:true,t:'SSL/TLS enabled for all connections'},
-            {ok:true,t:'Password policy enforced (min 12 chars, rotation 90d)'},
-            {ok:true,t:'No public-facing database ports detected'},
+            {ok:true,t:'Password policy enforced'},
           ].map((f,i)=><div key={i} style={{fontSize:'.82rem',marginBottom:8,display:'flex',gap:8}}>
-            <span style={{color:f.ok?'var(--green)':'var(--red)'}}>{f.ok?'\u2713':'\u2717'}</span>
-            <span style={{color:f.ok?'var(--text)':'var(--muted)'}}>{f.t}</span>
+            <span style={{color:f.ok?'var(--green)':'var(--red)'}}>{f.ok?'✓':'✗'}</span>
+            <span>{f.t}</span>
           </div>)}
         </div>
         <div>
           <h4 style={{fontSize:'.9rem',fontWeight:700,marginBottom:12,color:'var(--muted)'}}>Recommendations</h4>
           {[
-            'Encrypt PIA columns before migration or implement column-level encryption on target',
-            'Revoke SUPERUSER from application accounts; use role-based access',
-            'Implement row-level security policies on sensitive tables',
-            'Enable full audit logging on target database from day one',
-            'Migrate only active user accounts; archive inactive ones',
+            'Encrypt PII columns before migration',
+            'Revoke SUPERUSER from application accounts',
+            'Implement row-level security policies',
+            'Enable full audit logging on target',
           ].map((r,i)=><div key={i} style={{fontSize:'.82rem',marginBottom:8,paddingLeft:16,borderLeft:'2px solid var(--cyan)',color:'var(--muted)'}}>{r}</div>)}
         </div>
       </div>
     </div>
 
     <div className="card report-section" style={{marginBottom:24}}>
-      <h3>{'\u{26A1}'} Performance Baselines</h3>
+      <h3>⚡ Performance Baselines</h3>
       <div className="grid-3">
-        {[{l:'Avg Query Time',v:'23ms',c:'var(--green)',note:'Good'},{l:'Index Usage',v:'87%',c:'var(--green)',note:'Healthy'},{l:'Table Scan Ratio',v:'4.2%',c:'var(--green)',note:'Acceptable'},
-          {l:'Slow Queries (>500ms)',v:'3',c:'var(--amber)',note:'Review needed'},{l:'Connection Utilization',v:'62%',c:'var(--green)',note:'Headroom OK'},{l:'Cache Hit Ratio',v:'94%',c:'var(--green)',note:'Excellent'}
+        {[{l:'Avg Query Time',v:'23ms',c:'var(--green)',note:'Good'},{l:'Index Usage',v:'87%',c:'var(--green)',note:'Healthy'},{l:'Table Scan Ratio',v:'4.2%',c:'var(--green)',note:'Acceptable'}
         ].map(m=><div className="card" key={m.l} style={{padding:16,textAlign:'center'}}>
           <div style={{fontSize:'1.4rem',fontWeight:800,color:m.c}}>{m.v}</div>
           <div style={{fontSize:'.78rem',color:'var(--muted)'}}>{m.l}</div>
-          <div style={{fontSize:'.7rem',color:m.c,marginTop:4}}>{m.note}</div>)}
+        </div>)}
       </div>
     </div>
 
+    <RollbackPlanSection/>
+
     <div className="card report-section" style={{marginBottom:24}}>
-      <h3>{'\u{1F4A1}'} AI  Recommendations</h3>
+      <h3>💡 AI Recommendations</h3>
       <div style={{display:'flex',flexDirection:'column',gap:12}}>
         {[
-          {pri:'HIGH',c:'var(--red)',t:'Resolve missing primary keys on 12 tables before migration',d:'Data validation and incremental sync depend on PKs. Add surrogate keys where natural keys are absent.'},
-          {pri:'HIGH',c:'var(--red)',t:'Add missing foreign key constraints for 6 relationships',d:'Without FKs, referential integrity cannot be verified post-migration. Define constraints now.'},
-          {pri:'HIGH',c:'var(--red)',t:'Encrypt PIA columns (email, SSN) before or during migration',d:'Use column-level encryption or migrate to target with transparent data encryption enabled.'},
-          {pri:'MED',c:'var(--amber)',t:'Drop 7 unused indexes and 3 orphaned tables to reduce migration scope',d:'Saves ~340 MB transfer and reduces migration time by approximately 8 minutes.'},
-          {pri:'MED',c:'var(--amber)',t:'Update stale statistics and defragment top 5 tables',d:'Ensures accurate size estimates and optimal batch sizing during data transfer.'},
-          {pri:'MED',c:'var(--amber)',t:'Rewrite 2 non-portable stored procedures for target compatibility',d:'sp_generate_report and tru_cascade_delete need manual conversion. Estimated 4-6 hours of dev work.'},
-          {pri:'LOW',c:'var(--cyan)',t:'Add documentation comments to tables and columns during migration',d:'Opportunity to improve knowledge base. Can be done incrementally post-migration.'},
-          {pri:'LOW',c:'var(--cyan)',t:'Implement connection pooling on target database',d:'Add pgBouncer or equivalent for better connection management and resource utilization.'},
+          {pri:'HIGH',c:'var(--red)',t:'Resolve missing primary keys on 12 tables',d:'Data validation depends on PKs. Add surrogate keys where needed.'},
+          {pri:'HIGH',c:'var(--red)',t:'Encrypt PII columns before migration',d:'Use column-level encryption or transparent data encryption.'},
+          {pri:'MED',c:'var(--amber)',t:'Drop 7 unused indexes',d:'Saves ~340 MB transfer and reduces migration time.'},
         ].map((r,i)=><div key={i} style={{display:'flex',gap:12,alignItems:'flex-start'}}>
           <span className="tag" style={{background:r.c+'20',color:r.c,minWidth:40,textAlign:'center'}}>{r.pri}</span>
           <div><div style={{fontWeight:700,fontSize:'.88rem'}}>{r.t}</div><div style={{fontSize:'.8rem',color:'var(--muted)',marginTop:2}}>{r.d}</div></div>
@@ -314,7 +747,7 @@ function AnalysisSimulation({sourceConfig, onComplete}){
     </div>
 
     <div className="card report-section">
-      <h3>{'\u{1F4B0}'} Cost &amp; Duration Estimate</h3>
+      <h3>💰 Cost & Duration Estimate</h3>
       <div className="grid-3">
         <div className="card" style={{padding:16,textAlign:'center',border:'1px solid var(--cyan)'}}>
           <div style={{fontSize:'1.3rem',fontWeight:800,color:'var(--cyan)'}}>2h 15m</div>
@@ -329,7 +762,7 @@ function AnalysisSimulation({sourceConfig, onComplete}){
           <div style={{fontSize:'.78rem',color:'var(--muted)'}}>Data Transfer Size</div>
         </div>
       </div>
-    </dir>
+    </div>
   </div>
 }
 
@@ -351,24 +784,22 @@ function MigrationPhase({sourceConfig}){
   const runMigration = ()=>{
     setRunning(true);setLogs([]);setMigrationStep(0);timers.current=[];
     const steps = [
-      [{t:0,msg:'\u{2699} Configuring migration pipeline...',c:'var(--cyan)'},{t:500,msg:'  \u2713 Source connection verified',c:'var(--green)'},{t:800,msg:'  \u2713 Target connection verified',c:'var(--green)'},{t:1100,msg:'  \u2713 Pre-migration checks passed',c:'var(--green)'}],
-      [{t:0,msg:'\n\u{1F4CB} Schema Generation Agent starting...',c:'var(--purple)'},{t:500,msg:'  Generating DDL for 47 tables...',c:'var(--muted)'},{t:1000,msg:'  \u2713 38 type mappings applied',c:'var(--green)'},{t:1400,msg:'  \u2713 Topological sort: creating tables in dependency order',c:'var(--green)'},{t:1800,msg:'  \u2713 23 indexes created',c:'var(--green)'},{t:2200,msg:'  \u2713 18 FK constraints created',c:'var(--green)'},{t:2500,msg:'  \u2713 Schema creation complete',c:'var(--green)'}],
-      [{t:0,msg:'\n\u{26A1} Data Load Agent starting...',c:'var(--purple)'},{t:400,msg:'  Loading data in batches of 10,000 rows...',c:'var(--muted)'},
-        {t:1000,msg:'  [customers] 245,892 rows \u2713 (12s)',c:'var(--green)'},
-        {t:1800,msg:'  [products] 18,445 rows \u2713 (2s)',c:'var(--green)'},
-        {t:2600,msg:'  [orders] 892,441 rows \u2713 (48s)',c:'var(--green)'},
-        {t:3400,msg:'  [order_items] 1,523,891 rows \u2713 (1m 22s)',c:'var(--green)'},
-        {t:4200,msg:'  [payments] 445,892 rows \u2713 (24s)',c:'var(--green)'},
-        {t:4800,msg:'  \u2713 All 2,847,391 rows loaded across 47 tables',c:'var(--green)'}],
-      [{t:0,msg:'\n\u{2705} Validation Agent starting...',c:'var(--purple)'},
+      [{t:0,msg:'⚙ Configuring migration pipeline...',c:'var(--cyan)'},{t:500,msg:'  ✓ Source connection verified',c:'var(--green)'},{t:800,msg:'  ✓ Target connection verified',c:'var(--green)'},{t:1100,msg:'  ✓ Pre-migration checks passed',c:'var(--green)'}],
+      [{t:0,msg:'\n📋 Schema Generation Agent starting...',c:'var(--purple)'},{t:500,msg:'  Generating DDL for 47 tables...',c:'var(--muted)'},{t:1000,msg:'  ✓ 38 type mappings applied',c:'var(--green)'},{t:1400,msg:'  ✓ Topological sort: creating tables in dependency order',c:'var(--green)'},{t:1800,msg:'  ✓ 23 indexes created',c:'var(--green)'},{t:2200,msg:'  ✓ 18 FK constraints created',c:'var(--green)'},{t:2500,msg:'  ✓ Schema creation complete',c:'var(--green)'}],
+      [{t:0,msg:'\n⚡ Data Load Agent starting...',c:'var(--purple)'},{t:400,msg:'  Loading data in batches of 10,000 rows...',c:'var(--muted)'},
+        {t:1000,msg:'  [customers] 245,892 rows ✓ (12s)',c:'var(--green)'},
+        {t:1800,msg:'  [products] 18,445 rows ✓ (2s)',c:'var(--green)'},
+        {t:2600,msg:'  [orders] 892,441 rows ✓ (48s)',c:'var(--green)'},
+        {t:3400,msg:'  [order_items] 1,523,891 rows ✓ (1m 22s)',c:'var(--green)'},
+        {t:4200,msg:'  [payments] 445,892 rows ✓ (24s)',c:'var(--green)'},
+        {t:4800,msg:'  ✓ All 2,847,391 rows loaded across 47 tables',c:'var(--green)'}],
+      [{t:0,msg:'\n✅ Validation Agent starting...',c:'var(--purple)'},
         {t:500,msg:'  Comparing row counts...',c:'var(--muted)'},
-        {t:1000,msg:'  \u2713 Row counts match: 47/47 tables',c:'var(--green)'},
+        {t:1000,msg:'  ✓ Row counts match: 47/47 tables',c:'var(--green)'},
         {t:1500,msg:'  Computing checksums...',c:'var(--muted)'},
-        {t:2000,msg:'  \u2713 Checksums match: 47/47 tables',c:'var(--green)'},
-        {t:2500,msg:'  Sampling rows for verification...',c:'var(--muted)'},
-        {t:3000,msg:'  \u2713 Sample verification: 100% match (500 rows sampled)',c:'var(--green)'},
-        {t:3300,msg:'  \u2713 Constraint validation passed',c:'var(--green)'}],
-      [{t:0,msg:'\n\u{1F389} Migration Complete!',c:'var(--green)'},
+        {t:2000,msg:'  ✓ Checksums match: 47/47 tables',c:'var(--green)'},
+        {t:2500,msg:'  ✓ Constraint validation passed',c:'var(--green)'}],
+      [{t:0,msg:'\n🎉 Migration Complete!',c:'var(--green)'},
         {t:400,msg:'  Duration: 2h 08m 34s',c:'var(--cyan)'},
         {t:700,msg:'  Rows migrated: 2,847,391',c:'var(--cyan)'},
         {t:1000,msg:'  Data transferred: 4.2 GB',c:'var(--cyan)'},
@@ -381,7 +812,7 @@ function MigrationPhase({sourceConfig}){
       sm.forEach(m=>{sched(()=>addLog(m.msg,m.c),sd+m.t)});
       const mx=Math.max(...sm.map(m=>m.t));
       if(si<steps.length-1) sched(()=>setMigrationStep(si+1),sd+mx+200);
-      gd;=mx+400;
+      gd+=mx+400;
     });
     sched(()=>{setDone(true);setRunning(false);setMigrationStep(MIGRATION_STEPS.length)},gd+200);
   };
@@ -392,7 +823,7 @@ function MigrationPhase({sourceConfig}){
 
     <div className="card" style={{marginBottom:24}}>
       <h3 style={{fontWeight:700,marginBottom:16,display:'flex',alignItems:'center',gap:8}}>
-        <span style={{color:'var(--purple)'}}>{'\u25C6'}</span> Target Database Configuration
+        <span style={{color:'var(--purple)'}}>◆</span> Target Database Configuration
       </h3>
       <div className="grid-2" style={{gap:16}}>
         <div><label>Cloud / Target</label>
@@ -414,23 +845,26 @@ function MigrationPhase({sourceConfig}){
           <div><label>Database</label><input value={targetConfig.database} onChange={e=>setTargetConfig({...targetConfig,database:e.target.value})}/></div>
         </div>
       </div>
+      <ConnectionTester config={targetConfig}/>
     </div>
 
     <Stepper steps={MIGRATION_STEPS} currentIdx={migrationStep}/>
 
     {!running && !done && <div style={{textAlign:'center',padding:'32px 0'}}>
       <button className="btn btn-primary" onClick={runMigration} style={{fontSize:'1rem',padding:'14px 36px'}}>
-        {'\u{1F680}'} Execute Migration
+        🚀 Execute Migration
       </button>
     </div>}
 
     {(running||done) && <div className="log-box" ref={logRef}>
       {logs.map((l,i)=><div key={i} className="log-line" style={{color:l.color}}>{l.text}</div>)}
-      {running && <span style={{animation:'pulse 1s infinite',color:'var(--cyan)'}}>{'\u258B'}</span>}
+      {running && <span style={{animation:'pulse 1s infinite',color:'var(--cyan)'}}>▋</span>}
     </div>}
 
+    {running && <ProgressMetrics running={true}/>}
+
     {done && <div className="gate-banner" style={{borderColor:'rgba(34,197,94,.3)',background:'linear-gradient(135deg,rgba(34,197,94,.08),rgba(6,182,212,.08))'}}>
-      <h3 style={{color:'var(--green)'}}>{'\u2713'} Migration Completed Successfully</h3>
+      <h3 style={{color:'var(--green)'}}>✓ Migration Completed Successfully</h3>
       <p>All 2,847,391 rows migrated and validated with 100% data integrity.</p>
       <div className="grid-4" style={{maxWidth:600,margin:'0 auto'}}>
         {[{n:'2h 08m',l:'Duration'},{n:'2.8M',l:'Rows'},{n:'4.2 GB',l:'Data'},{n:'100%',l:'Integrity'}].map(s=>
@@ -449,33 +883,49 @@ function App(){
   const [phase, setPhase] = useState(1);
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [approved, setApproved] = useState(false);
-  const [showReport, setShowReport ] = useState(false);
+  const [showReport, setShowReport] = useState(false);
+  const [theme, setTheme] = useState('dark');
   const [sourceConfig, setSourceConfig] = useState({engine:'',host:'',port:'5432',database:'',user:'admin',pass:'password'});
+
+  useEffect(()=>{
+    document.body.className = `${theme}-theme`;
+  }, [theme]);
+
+  const toggleTheme = ()=>{
+    setTheme(theme==='dark'?'light':'dark');
+  };
 
   const goPhase2 = ()=>{ if(approved) setPhase(2); };
 
   return <>
     <nav>
       <div className="nav-brand">
-        <span style={{fontSize:'1.2rem'}}>{'\u{1F5C4}'}</span> DB Migration Agent
+        <span style={{fontSize:'1.2rem'}}>🗄</span> DB Migration Agent
       </div>
-      <div className="nav-phase">
-        <button className={phase===1?'active':''} onClick={()=>setPhase(1)}>
-          <span className="phase-badge badge-analysis">P1</span> Analysis
-          {analysisComplete && <span style={{color:'var(--green)',fontSize:'.75rem'}}>{'\u2713'}</span>}
+      <div className="nav-spacer"/>
+      <div className="nav-controls">
+        <button className="theme-toggle" onClick={toggleTheme} title="Toggle theme">
+          {theme==='dark'?'☀':'🌙'}
         </button>
-        <button className={phase===2?'active':approved?'':'locked'} onClick={goPhase2}>
-          <span className="phase-badge badge-migrate">P2</span> Migration
-          {!approved && <span style={{fontSize:'.75rem'}}>{'\u{1F512}'}</span>}
-        </button>
+        <div className="nav-phase">
+          <button className={phase===1?'active':''} onClick={()=>setPhase(1)}>
+            <span className="phase-badge badge-analysis">P1</span> Analysis
+            {analysisComplete && <span style={{color:'var(--green)',fontSize:'.75rem'}}>✓</span>}
+          </button>
+          <button className={phase===2?'active':approved?'':'locked'} onClick={goPhase2}>
+            <span className="phase-badge badge-migrate">P2</span> Migration
+            {!approved && <span style={{fontSize:'.75rem'}}>🔒</span>}
+          </button>
+        </div>
       </div>
     </nav>
 
     {phase===1 && <div className="container">
       <h2 className="section-title">Phase 1: Database Analysis</h2>
-      <p className="section-sub">Comprehensive as-is impact assessment. Every table, column, constraint, procedure, and administration gap &#8212+nothing left uncovered.</p>
+      <p className="section-sub">Comprehensive as-is impact assessment. Every table, column, constraint, procedure, and administration gap — nothing left uncovered.</p>
 
       <SourceConfig config={sourceConfig} setConfig={setSourceConfig}/>
+      <ConnectionTester config={sourceConfig}/>
 
       <div style={{marginTop:24}}>
         <AnalysisSimulation sourceConfig={sourceConfig} onComplete={()=>{setAnalysisComplete(true);setShowReport(true)}}/>
@@ -483,14 +933,55 @@ function App(){
 
       {showReport && <>
         <div style={{margin:'32px 0 24px',borderTop:'1px solid var(--border)',paddingTop:24}}>
-          <h3 style={{fontSize:'1.3rem',fontWeight:800,marginBottom:4}}>{'\u{1F4DD}'} Comprehensive Analysis Report</h3>
+          <h3 style={{fontSize:'1.3rem',fontWeight:800,marginBottom:4}}>📝 Comprehensive Analysis Report</h3>
           <p style={{color:'var(--muted)',fontSize:'.88rem'}}>Full findings from all analysis agents. Review carefully before proceeding to migration.</p>
         </div>
         <AnalysisReport sourceConfig={sourceConfig}/>
+        <MigrationHistory/>
 
         {!approved && <div className="gate-banner">
-          <h3>{'\u{1F6E1}'} Analytis Review Gate</h3>
-          <p>Review all findings above. Approve tF�V���6��6R#�֖w&F��������F�b7G��S׷�F�7���vf�W�r�v�"ƧW7F�g�6��FV�C�v6V�FW"w����'WGF��6�74��S�&'F�'F��7V66W72"��6Ɩ6�ײ����6WD&�fVB�G'VR����u�S#s2w�&�fRf��V���6�֖w&F�����'WGF����'WGF��6�74��S�&'F�'F���WFƖ�R"��6Ɩ6�ײ����6WE6��u&W�'B�f�6R��6WD�Ǘ6�46���WFR�f�6R�����u�W�cSG�w�&R�'V��Ǘ6�0���'WGF�����F�c���F�c�Р��&�fVBbb�F�b6�74��S�&vFR�&��W""7G��S׷�&�&FW$6���#�w&v&�3B��rÓB��2�r�&6�w&�V�C�vƖ�V"�w&F�V�B�3VFVr�&v&�3B��rÓB�����&v&�b��"�#"�����w���ƃ27G��S׷�6���#�wf"���w&VV�w���u�S#s2w��Ǘ6�2&�fVC���3����6R#�֖w&F����2��rV���6�VB�����'WGF��6�74��S�&'F�'F��&��'�"��6Ɩ6�ײ����6WE�6R�"����u�W�cc��w�&�6VVBF�֖w&F�����'WGF�����F�c�Т���Т��F�c�Р���6S���"bb&�fVBbb�F�b6�74��S�&6��F��W"#��F�b6�74��S�&��6���6r#��F�b7G��S׷�f��E6��S�s7&V�r��&v��&�GF�ӣg���u�W�cS'�w���F�c�ƃ3��6R#�֖w&F����2��6�VC���3��7G��S׷���v�GF��S��&v��sWF�w���6���WFR�6R�Ǘ6�2�B&�fRF�Rf��F��w2F�V���6�F�R֖w&F����VƖ�R�����'WGF��6�74��S�&'F�'F���WFƖ�R"7G��S׷��&v��F��#����6Ɩ6�ײ����6WE�6R�����u�S#�w�v�F��6R��Ǘ6�0���'WGF�����F�c���F�c�Р���6S���"bb&�fVBbb�֖w&F����6R6�W&6T6��f�s׷6�W&6T6��f�w���Р��f��FW"7G��S׷�FW�DƖv�v6V�FW"r�FF��s�sC��#G�r�6���#�wf"���F�Ғr�f��E6��S�r�&V�r�&�&FW%F��s�6�ƖBf"���&�&FW"�r��&v��F��C����D"֖w&F���vV�Bb3�#"����vW&VB�V�F��vV�BFF&6R֖w&F�����f��FW#����Р�&V7DD���7&VFU&��B�F�7V�V�B�vWDV�V�V�D'��B�w&��Br���&V�FW"���⓰���67&�C���&�G�����F���);
+          <h3>🛡 Analysis Review Gate</h3>
+          <p>Review all findings above. Approve to unlock Phase 2: Migration.</p>
+          <div style={{display:'flex',gap:12,justifyContent:'center'}}>
+            <button className="btn btn-success" onClick={()=>setApproved(true)}>
+              ✓ Approve & Unlock Migration
+            </button>
+            <button className="btn btn-outline" onClick={()=>{setShowReport(false);setAnalysisComplete(false)}}>
+              🔄 Re-run Analysis
+            </button>
+          </div>
+        </div>}
+
+        {approved && <div className="gate-banner" style={{borderColor:'rgba(34,197,94,.3)',background:'linear-gradient(135deg,rgba(34,197,94,.08),rgba(6,182,212,.08))'}}>
+          <h3 style={{color:'var(--green)'}}>✓ Analysis Approved</h3>
+          <p>Phase 2: Migration is now unlocked.</p>
+          <button className="btn btn-primary" onClick={()=>setPhase(2)}>
+            🚀 Proceed to Migration
+          </button>
+        </div>}
+      </>}
+    </div>}
+
+    {phase===2 && !approved && <div className="container">
+      <div className="lock-msg">
+        <div style={{fontSize:'3rem',marginBottom:16}}>🔒</div>
+        <h3>Phase 2: Migration is Locked</h3>
+        <p style={{maxWidth:500,margin:'0 auto'}}>Complete Phase 1 analysis and approve the findings to unlock the migration pipeline.</p>
+        <button className="btn btn-outline" style={{marginTop:20}} onClick={()=>setPhase(1)}>
+          ← Go to Phase 1: Analysis
+        </button>
+      </div>
+    </div>}
+
+    {phase===2 && approved && <MigrationPhase sourceConfig={sourceConfig}/>}
+
+    <footer style={{textAlign:'center',padding:'48px 24px',color:'var(--dim)',fontSize:'.8rem',borderTop:'1px solid var(--border)',marginTop:48}}>
+      DB Migration Agent — AI-Powered Multi-Agent Database Migration
+    </footer>
+  </>
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
